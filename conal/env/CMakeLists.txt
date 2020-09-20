@@ -1,0 +1,1 @@
+install(PROGRAMS dummy.sh DESTINATION env)
