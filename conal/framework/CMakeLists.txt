@@ -5,7 +5,7 @@ set(FRAMEWORK_SOURCES
 
 
 
-add_library(ConalFramework ${FRAMEWORK_SOURCES}
+add_library(ConalFramework SHARED ${FRAMEWORK_SOURCES}
 
 )
 target_include_directories(ConalFramework PUBLIC include/)
