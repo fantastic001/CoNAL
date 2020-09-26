@@ -16,3 +16,4 @@ foreach(component ${components})
 endforeach()
 
 add_subdirectory(env/ env/)
+add_subdirectory(framework/ framework/)
