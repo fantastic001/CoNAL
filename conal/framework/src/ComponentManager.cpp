@@ -21,6 +21,7 @@ std::shared_ptr<ComponentManager> ComponentManager::getInstance() {
 void ComponentManager::registerComponent(std::string name, std::shared_ptr<Component> component) {
     logger.info("Registering component " + name);
     component->logger = std::shared_ptr<Logger>(new Logger(name));
+    logger.info("Starting component " + name);
     component->start();
     component.get()->messageReadingThread = std::thread([&component, &name] () {
         POSIXPipe pipe(3, std::ios::in);
@@ -38,5 +39,4 @@ void ComponentManager::registerComponent(std::string name, std::shared_ptr<Compo
     });
     component.get()->messageReadingThread.join();
     
-    logger.info("Starting component " + name);
 }
