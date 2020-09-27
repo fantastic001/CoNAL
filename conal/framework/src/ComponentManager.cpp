@@ -7,7 +7,7 @@
 
 using namespace conal::framework;
 
-std::shared_ptr<ComponentManager> ComponentManager::instance = std::shared_ptr<ComponentManager>(NULL);
+std::shared_ptr<ComponentManager> ComponentManager::instance = std::shared_ptr<ComponentManager>(nullptr);
 
 ComponentManager::ComponentManager() : logger("ComponentManager") {
 
@@ -21,7 +21,9 @@ std::shared_ptr<ComponentManager> ComponentManager::getInstance() {
 void ComponentManager::registerComponent(std::string name, std::shared_ptr<Component> component) {
     logger.info("Registering component " + name);
     component->logger = std::shared_ptr<Logger>(new Logger(name));
-    component.get()->messageReadingThread = std::thread([&component, &name, this] () {
+    std::shared_ptr<Logger> loggerPtr = std::shared_ptr<Logger>(&logger);
+    component->start();
+    component.get()->messageReadingThread = std::thread([&component, &name] () {
         POSIXPipe pipe(3, std::ios::in);
         std::istream& is = pipe.getStream();
         std::string msg;
@@ -35,7 +37,7 @@ void ComponentManager::registerComponent(std::string name, std::shared_ptr<Compo
             component->handleMessage(message);
         }
     });
+    component.get()->messageReadingThread.join();
     
     logger.info("Starting component " + name);
-    component->start();
 }
