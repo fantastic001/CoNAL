@@ -5,6 +5,8 @@ project (CoNAL)
 install(PROGRAMS setup-env.sh DESTINATION . 
 )
 
+find_package(Threads REQUIRED)
+
 set(components 
     activity_manager
 )

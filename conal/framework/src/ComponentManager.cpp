@@ -7,6 +7,7 @@
 
 using namespace conal::framework;
 
+std::shared_ptr<ComponentManager> ComponentManager::instance = std::shared_ptr<ComponentManager>(NULL);
 
 ComponentManager::ComponentManager() : logger("ComponentManager") {
 
