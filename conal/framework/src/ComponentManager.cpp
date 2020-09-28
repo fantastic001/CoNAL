@@ -23,11 +23,10 @@ void ComponentManager::registerComponent(std::string name, std::shared_ptr<Compo
     component->logger = std::shared_ptr<Logger>(new Logger(name));
     logger.info("Starting component " + name);
     component->start();
-    component.get()->messageReadingThread = std::thread([&component, &name] () {
-        POSIXPipe pipe(3, std::ios::in);
-        std::istream& is = pipe.getStream();
+    component.get()->messageReadingThread = std::thread([&component, &name] () {;
         std::string msg;
-        while (std::getline(is, msg)) {
+        auto is = std::fstream(std::getenv("COMPONENT_MSG_FIFO"), std::ios::in | std::ios::out);
+        while (! std::getline(is, msg).eof()) {
             std::stringstream ss(msg);
             Message message; 
             ss >> message.performative;

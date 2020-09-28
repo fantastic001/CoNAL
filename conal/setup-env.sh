@@ -1,13 +1,47 @@
 #!/bin/sh
 
+CONAL_TEMP_DIR=/tmp/conal/
+
 component_autostart() {
     for component in $CONAL_DIR/components/*; do 
         if [ -e "$component/autostart.sh" ]; then 
             component_name=$(basename $component)
             echo "Starting $component_name"
-            $component/autostart.sh
+            . $component/autostart.sh
         fi
     done
+}
+
+start_component() {
+    local component
+    local component_msg_fifo
+    local component_state_dir
+    component=$1
+    component_state_dir=$CONAL_TEMP_DIR/state/$component
+    if [ -f $component_state_dir/$component.pid ]; then 
+        echo "Component already running"
+        return 
+    fi
+    # clear old directory structure 
+    rm -rf $component_state_dir $CONAL_TEMP_DIR/comm/$component
+    mkdir -p $component_state_dir
+    mkdir -p $CONAL_TEMP_DIR/comm/$component
+    component_msg_fifo=$CONAL_TEMP_DIR/comm/$component/messages
+    mkfifo $component_msg_fifo
+    COMPONENT_MSG_FIFO=$component_msg_fifo LD_LIBRARY_PATH=$CONAL_DIR/lib/:$LD_LIBRARY_PATH $CONAL_DIR/components/$component/bin/$component &
+    echo $! > $component_state_dir/$component.pid
+}
+
+stop_component() {
+    local component
+    local component_msg_fifo
+    local component_state_dir
+    component=$1
+    component_state_dir=$CONAL_TEMP_DIR/state/$component
+    component_msg_fifo=$CONAL_TEMP_DIR/comm/$component/messages
+    rm $component_msg_fifo
+    kill $(cat $component_state_dir/$component.pid)
+    rm -rf $component_state_dir/$component.pid
 }
 
 platform_capabilities_discovery() {
