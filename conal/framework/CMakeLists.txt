@@ -2,6 +2,8 @@ set(FRAMEWORK_SOURCES
     src/ComponentManager.cpp 
     src/Logger.cpp 
     src/Performative.cpp
+    src/TCPServer.cpp
+    src/Connection.cpp
 )
 
 
