@@ -8,6 +8,9 @@ namespace conal {
     namespace activity_manager {
         class ActivityManagerComponent : public conal::framework::Component {
                 std::shared_ptr<::conal::framework::TCPServer> server; 
+                std::thread serverThread;
+
+                void runServer(); 
             public: 
                 virtual void start();
                 virtual void stop();
