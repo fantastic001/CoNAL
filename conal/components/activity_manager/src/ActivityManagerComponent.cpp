@@ -3,6 +3,7 @@
 #include <iostream>
 #include <TCPServer.hpp>
 #include <Connection.hpp>
+#include <sstream>
 
 using namespace conal::activity_manager; 
 using namespace conal::framework;
@@ -29,6 +30,18 @@ void ActivityManagerComponent::runServer() {
     },
     [logger = logger] (std::shared_ptr<Connection> conn, std::string message) {
         logger->debug("Received message: " + message);
+        std::stringstream ss(message); 
+        std::string command; 
+        ss >> command; 
+
+        if (command == "SET") {
+            std::string paramName, value; 
+            ss >> paramName; 
+            ss >> value;
+            logger->debug("Setting " + paramName + " to " + value + " for " + conn->getHostname());
+            conn->setProperty(paramName, value);
+        }
+
     });
 }
 

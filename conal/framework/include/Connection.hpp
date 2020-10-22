@@ -8,7 +8,10 @@ namespace conal {
         class Connection {
             friend class TCPServer;
             boost::asio::ip::tcp::socket socket;
+            std::map<std::string, std::string> properties; 
+
             Connection(boost::asio::ip::tcp::socket socket);
+
         public:
             typedef boost::asio::ip::tcp::socket::executor_type executor_type;
             void send(std::string data);
@@ -30,6 +33,9 @@ namespace conal {
             }
 
             bool canPing();
+
+            void setProperty(std::string property, std::string value);
+            std::string getProperty(std::string property) const;
 
         };
     }

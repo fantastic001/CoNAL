@@ -44,6 +44,24 @@ stop_component() {
     rm -rf $component_state_dir/$component.pid
 }
 
+send_message() {
+    local component
+    local message 
+    local performative
+    component=$1
+    performative=$2 
+    message="$3"
+    echo "$performative console $component $message" > $CONAL_TEMP_DIR/comm/$component/messages
+}
+
+request() {
+    local component
+    local message 
+    component=$1
+    message="$2"
+    send_message $component REQUEST $message
+}
+
 platform_capabilities_discovery() {
     export CONAL_HOST_PLATFORM="$(uname -m)"
 }

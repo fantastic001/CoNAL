@@ -52,7 +52,7 @@ namespace conal {
                     // std::cout << "Here is it!\n";
                     std::string message;
                     std::istream is(buffer.get());
-                    is >> message;
+                    std::getline(is, message);
                     m(conn, message);
                     buffer->consume(n);
                     this->doRead(m,ec,conn);

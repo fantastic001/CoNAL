@@ -30,5 +30,18 @@ namespace conal {
             return true;
         }
 
+        void Connection::setProperty(std::string property, std::string value) {
+            properties[property] = value; 
+        }
+
+        std::string Connection::getProperty(std::string property) const {
+            if (properties.find(property) != properties.end()) {
+                return properties.find(property)->second;
+            }
+            else {
+                return "";
+            }
+        }
+
     }
 }
