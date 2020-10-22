@@ -6,6 +6,7 @@ install(PROGRAMS autostart.sh
 set(ACTIVITY_MANAGER_SOURCES
     src/main.cpp
     src/ActivityManagerComponent.cpp
+    src/ConnectionManager.cpp
 )
 
 add_executable(activity_manager ${ACTIVITY_MANAGER_SOURCES})

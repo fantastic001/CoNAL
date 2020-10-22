@@ -33,6 +33,9 @@ void ComponentManager::registerComponent(std::string name, std::shared_ptr<Compo
             ss >> message.from_component;
             ss >> message.to_component;
             std::getline(ss, message.body);
+            int beginCharIndex = 0; 
+            while (message.body[beginCharIndex] == ' ') beginCharIndex++;
+            message.body = message.body.substr(beginCharIndex);
             component->handleMessage(message);
         }
     });

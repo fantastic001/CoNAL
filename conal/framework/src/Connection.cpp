@@ -12,6 +12,10 @@ namespace conal {
             os << data;
             boost::asio::write(socket, buf);
         }
+
+        bool Connection::closed() {
+            return ! socket.is_open();
+        }
         std::string Connection::getHostname() {
             return socket.remote_endpoint().address().to_string();
         }

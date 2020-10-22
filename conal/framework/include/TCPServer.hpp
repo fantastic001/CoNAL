@@ -29,7 +29,7 @@ namespace conal {
                 std::cout << "Waiting for connection\n";
                 acceptorPtr->async_accept([this, c, m] (boost::system::error_code ec, boost::asio::ip::tcp::socket socket) {
                     std::shared_ptr<Connection> conn(new ::conal::framework::Connection(std::move(socket)));
-                    c(*conn);
+                    c(conn);
                     this->addConnection(conn);
                     this->doRead(m,ec,conn);
                     this->accept(c,m);
@@ -53,7 +53,7 @@ namespace conal {
                     std::string message;
                     std::istream is(buffer.get());
                     is >> message;
-                    m(*conn, message);
+                    m(conn, message);
                     buffer->consume(n);
                     this->doRead(m,ec,conn);
                 };

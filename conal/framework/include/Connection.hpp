@@ -12,6 +12,7 @@ namespace conal {
         public:
             typedef boost::asio::ip::tcp::socket::executor_type executor_type;
             void send(std::string data);
+            bool closed();
             std::string getHostname(); 
             auto get_executor() -> decltype(socket.get_executor()) {
                 return socket.get_executor();
