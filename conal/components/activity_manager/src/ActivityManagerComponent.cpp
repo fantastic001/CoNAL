@@ -11,9 +11,11 @@ ActivityManagerComponent::ActivityManagerComponent() {
 }
 
 void ActivityManagerComponent::start() {
+    logger->info("Starting activity manager component");
     server = std::make_shared<TCPServer>("0.0.0.0", 6969);
     serverThread = std::thread(&ActivityManagerComponent::runServer, this);
     serverThread.detach();
+    logger->info("Server initialized");
 }
 
 void ActivityManagerComponent::stop() {
@@ -21,23 +23,28 @@ void ActivityManagerComponent::stop() {
 }
 
 void ActivityManagerComponent::runServer() {
-    server->run([&manager = connectionManager] (std::shared_ptr<Connection> conn) {
+    server->run([logger = logger, &manager = connectionManager] (std::shared_ptr<Connection> conn) {
+        logger->info("Adding connection " + conn->getHostname());
         manager.addConnection(conn);
     },
-    [] (std::shared_ptr<Connection> conn, std::string message) {
-        conn->send(message + "\n");
+    [logger = logger] (std::shared_ptr<Connection> conn, std::string message) {
+        logger->debug("Received message: " + message);
     });
 }
 
 void ActivityManagerComponent::handleMessage(Message msg) {
-    std::cout << "Got message " << msg.body << std::endl;
+    logger->debug("Got message: " + msg.body);
     if (msg.performative == Performative::REQUEST) {
         if (msg.body == "list") {
-            // int i = 1;
-            // for (auto iter = connections.begin(); iter != connections.end(); iter++) {
-            //     std::cout << "Client: " << i << (*iter)->getHostname() << std::endl;
-            //     i++;
-            // }
+            logger->info("Listing all connections");
+            connectionManager.removeClosed();
+            logger->debug("Removed all closed connections");
+            int i = 1;
+            auto connections = connectionManager.getConnections();
+            for (auto iter = connections.begin(); iter != connections.end(); iter++) {
+                std::cout << "Client " << i << ": "<< (*iter)->getHostname() << std::endl;
+                i++;
+            }
         }
     }
 }

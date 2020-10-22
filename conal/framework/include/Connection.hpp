@@ -29,6 +29,8 @@ namespace conal {
                 return socket.async_read_some(buffers, handler);
             }
 
+            bool canPing();
+
         };
     }
 }

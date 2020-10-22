@@ -6,13 +6,6 @@ using namespace ::conal::framework;
 using namespace std;
 
 conal::activity_manager::ConnectionManager::ConnectionManager() {
-    thread([] () {
-        while (true) {
-            
-
-            std::this_thread::sleep_for(std::chrono::seconds(1));
-        }
-    });
 }
 
 void conal::activity_manager::ConnectionManager::addConnection(shared_ptr<Connection> connection) {
@@ -22,13 +15,15 @@ void conal::activity_manager::ConnectionManager::addConnection(shared_ptr<Connec
 
 void conal::activity_manager::ConnectionManager::removeClosed() {
     unique_lock<mutex> lock(m_mutex);
-    std::list<decltype(connections.begin())> to_remove; 
+    list<shared_ptr<Connection>> newConnectionList; 
     for (auto iter = connections.begin(); iter != connections.end(); iter++) {
-        if ((*iter)->closed()) {
-            to_remove.push_back(iter);
+        if (! (*iter)->closed() && (*iter)->canPing()) {
+            newConnectionList.push_back(*iter);
         }
     }
-    for (auto iter = to_remove.begin(); iter != to_remove.end(); ++iter) {
-        connections.erase(*iter);
-    }
+    connections = newConnectionList;
+}
+
+list<shared_ptr<Connection>> conal::activity_manager::ConnectionManager::getConnections() const {
+    return connections;
 }

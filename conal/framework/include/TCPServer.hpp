@@ -26,7 +26,7 @@ namespace conal {
             }
             template<typename ConnectionHandler, typename MessageHandler> 
             void accept(ConnectionHandler c, MessageHandler m) {
-                std::cout << "Waiting for connection\n";
+                // std::cout << "Waiting for connection\n";
                 acceptorPtr->async_accept([this, c, m] (boost::system::error_code ec, boost::asio::ip::tcp::socket socket) {
                     std::shared_ptr<Connection> conn(new ::conal::framework::Connection(std::move(socket)));
                     c(conn);
@@ -46,10 +46,10 @@ namespace conal {
 
             template<typename MessageHandler> 
             void doRead(MessageHandler m, boost::system::error_code ec,std::shared_ptr<Connection> conn) {
-                std::cout << "Reading\n";
+                // std::cout << "Reading\n";
                 auto buffer = std::make_shared<boost::asio::streambuf>();
                 auto f = [this, conn, m, buffer] (boost::system::error_code ec, size_t n) {
-                    std::cout << "Here is it!\n";
+                    // std::cout << "Here is it!\n";
                     std::string message;
                     std::istream is(buffer.get());
                     is >> message;

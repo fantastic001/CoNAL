@@ -17,6 +17,7 @@ namespace conal {
             explicit ConnectionManager();
             void addConnection(std::shared_ptr<::conal::framework::Connection> connection);
             void removeClosed();
+            std::list<std::shared_ptr<::conal::framework::Connection>> getConnections() const; 
         };
     }
 }

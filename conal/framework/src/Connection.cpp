@@ -20,5 +20,15 @@ namespace conal {
             return socket.remote_endpoint().address().to_string();
         }
 
+        bool Connection::canPing() {
+            try {
+                send("ping");
+            }
+            catch (boost::wrapexcept<boost::system::system_error> e) {
+                return false;
+            }
+            return true;
+        }
+
     }
 }
