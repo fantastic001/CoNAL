@@ -55,7 +55,13 @@ void ActivityManagerComponent::handleMessage(Message msg) {
             int i = 1;
             auto connections = connectionManager.getConnections();
             for (auto iter = connections.begin(); iter != connections.end(); iter++) {
-                std::cout << "Client " << i << ": "<< (*iter)->getHostname() << std::endl;
+                std::cout 
+                    << "Client " 
+                    << i << ": "
+                    << (*iter)->getHostname() 
+                    << " NAME=" << (*iter)->getProperty("NAME")
+                    << " ARCH=" << (*iter)->getProperty("ARCH")
+                    << std::endl;
                 i++;
             }
         }
