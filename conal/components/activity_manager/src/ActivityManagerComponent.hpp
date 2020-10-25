@@ -3,7 +3,7 @@
 #include <Component.hpp>
 #include <Message.hpp>
 #include <TCPServer.hpp>
-
+#include <TCPCLient.hpp>
 #include "ConnectionManager.hpp"
 
 namespace conal {
@@ -12,6 +12,8 @@ namespace conal {
                 std::shared_ptr<::conal::framework::TCPServer> server; 
                 std::thread serverThread;
                 ConnectionManager connectionManager;
+                std::string masterHostname;
+                std::shared_ptr<::conal::framework::TCPClient> clientPtr;
 
                 void runServer(); 
             public: 
@@ -19,6 +21,7 @@ namespace conal {
                 virtual void start();
                 virtual void stop();
                 virtual void handleMessage(::conal::framework::Message msg);
+                bool isSlave() const;
         };
     }
 }

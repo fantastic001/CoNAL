@@ -10,13 +10,32 @@ using namespace conal::framework;
 
 ActivityManagerComponent::ActivityManagerComponent() {
 }
-
 void ActivityManagerComponent::start() {
     logger->info("Starting activity manager component");
-    server = std::make_shared<TCPServer>("0.0.0.0", 6969);
-    serverThread = std::thread(&ActivityManagerComponent::runServer, this);
-    serverThread.detach();
-    logger->info("Server initialized");
+    masterHostname = std::string(getenv("CONAL_MASTER_HOSTNAME"));
+    if (isSlave()) {
+        logger->info("Connecting to server...");
+        clientPtr = std::make_shared<TCPClient>(masterHostname, "6969");
+        logger->info("Client connected");
+        clientPtr->send("HELLO");
+        logger->debug("Data successfully written to pipe");
+        std::string reply = clientPtr->readLine();
+        if (reply == "HELLO2") {
+            logger->info("Handshake done!");
+            logger->debug("Sending all parameters for client");
+            clientPtr->send(std::string("SET ARCH ") + std::string(getenv("CONAL_HOST_PLATFORM")));
+            clientPtr->send(std::string("SET NAME ") + std::string(getenv("CONAL_CLIENT_NAME")));
+        }
+        else {
+            logger->error("Did not get reply to handshake");
+        }
+    }
+    else {
+        server = std::make_shared<TCPServer>("0.0.0.0", 6969);
+        serverThread = std::thread(&ActivityManagerComponent::runServer, this);
+        serverThread.detach();
+        logger->info("Server initialized");
+    }
 }
 
 void ActivityManagerComponent::stop() {
@@ -40,6 +59,9 @@ void ActivityManagerComponent::runServer() {
             ss >> value;
             logger->debug("Setting " + paramName + " to " + value + " for " + conn->getHostname());
             conn->setProperty(paramName, value);
+        }
+        else if (command == "HELLO") {
+            conn->send("HELLO2");
         }
 
     });
@@ -66,4 +88,8 @@ void ActivityManagerComponent::handleMessage(Message msg) {
             }
         }
     }
+}
+
+bool ActivityManagerComponent::isSlave() const {
+    return ! masterHostname.empty();
 }

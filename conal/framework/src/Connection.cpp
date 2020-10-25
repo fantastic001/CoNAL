@@ -10,6 +10,7 @@ namespace conal {
             boost::asio::streambuf buf;
             std::ostream os(&buf);
             os << data;
+            os << "\n";
             boost::asio::write(socket, buf);
         }
 

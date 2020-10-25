@@ -4,6 +4,7 @@ set(FRAMEWORK_SOURCES
     src/Performative.cpp
     src/TCPServer.cpp
     src/Connection.cpp
+    src/TCPClient.cpp
 )
 
 

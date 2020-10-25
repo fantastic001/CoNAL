@@ -1,5 +1,8 @@
 #!/bin/sh
 
+# Use CONAL_MASTER_HOSTNAME=xxx.yyy.zzz.www to tell CoNAL environment that it is running in slave mode 
+# Use CONAL_CLIENT_NAME to set proper client name on server
+
 CONAL_TEMP_DIR=/tmp/conal/
 
 component_autostart() {
