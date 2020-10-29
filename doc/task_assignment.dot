@@ -1,0 +1,16 @@
+digraph G {
+    "NON_EXISTING" -> "CREATED" [label="Activity manager creates task"];
+    "CREATED" -> "PREPARING" [label="Activity manager sends message to code manager to find loader"];
+    "PREPARING" -> "PREPARED" [label="Code manager found suitable loader"];
+    "PREPARING" -> "CREATED" [label="No loader found"];
+    "PREPARED" -> "LOADING" [label="Activity manager sends message to code manager to load code"];
+    "LOADING" -> "LOADED" [label = "Code manager replies with serialized code to send"];
+    "LOADED" -> "SENDING" [label="Activity manager on master sends code to clients"];
+    "SENDING" -> "SENT" [label="All clients responded that they got code and are ready to start it"];
+    "SENT" -> "READY" [label = "Activity manager on master node sends all clients to start task"];
+    "READY" -> "RUNNING" [label="all clients started code successfully and sent notification to master"];
+    "READY" -> "ERROR" [label="At least one client failed to start code"];
+    "RUNNING" -> "ERROR" [label = "On at least one client got error"];
+    "RUNNING" -> "FINISHED" [label="All clients finished their tasks"];
+    "FINISHED" -> "READY" [label="Activity manager wants to rerun task again"];
+}
