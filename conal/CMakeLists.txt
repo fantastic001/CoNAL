@@ -22,6 +22,7 @@ find_package(Threads REQUIRED)
 
 set(components 
     activity_manager
+    code_manager
 )
 
 foreach(component ${components})
