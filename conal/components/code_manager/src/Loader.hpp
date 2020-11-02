@@ -9,6 +9,7 @@ namespace conal {
             public:
                 virtual bool validate(std::string path, std::vector<std::string> params)=0;
                 virtual std::string load(std::string path, std::vector<std::string> params)=0;
+                virtual void run(std::string code) =0;
                 virtual ~Loader() {
                     
                 }

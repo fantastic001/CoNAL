@@ -78,7 +78,7 @@ request() {
     local message 
     component=$1
     message="$2"
-    send_message $component REQUEST $message
+    send_message $component REQUEST "$message"
 }
 
 platform_capabilities_discovery() {

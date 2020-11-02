@@ -24,6 +24,7 @@ void CodeManagerComponent::handleMessage(Message msg) {
         std::string command; 
         ss >> command;
         if (command == "load") {
+            logger->debug("Rest of the message body: " + msg.body);
             std::string path;
             ss >> path;
             std::vector<std::string> params; 
@@ -35,6 +36,16 @@ void CodeManagerComponent::handleMessage(Message msg) {
             logger->info("Loading code " + path);
             for (auto p : params) {
                 logger->debug(p);
+            }
+            auto loader = loaderManager->findLoader(path, params);
+            if (!loader) {
+                logger->error("No suitable loader for " + path);
+            }
+            else {
+                logger->info("Loading " + path);
+                std::string code = loader->load(path, params);
+                logger->info("Running " + path);
+                loader->run(code);
             }
         }
     }
