@@ -1,0 +1,3 @@
+project(ExampleIntegrationTest)
+
+add_executable(exampleIntegrationTest main.cpp)
