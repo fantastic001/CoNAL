@@ -3,7 +3,12 @@
 # Use CONAL_MASTER_HOSTNAME=xxx.yyy.zzz.www to tell CoNAL environment that it is running in slave mode 
 # Use CONAL_CLIENT_NAME to set proper client name on server
 
+CONAL_MASTER_HOSTNAME=""
+CONAL_CLIENT_NAME=""
 CONAL_TEMP_DIR=/tmp/conal/
+
+export CONAL_CLIENT_NAME
+export CONAL_MASTER_HOSTNAME
 
 component_autostart() {
     for component in $CONAL_DIR/components/*; do 
@@ -13,6 +18,17 @@ component_autostart() {
             . $component/autostart.sh
         fi
     done
+}
+
+component_autostop() {
+    for component in $CONAL_DIR/components/*; do 
+        if [ -e "$component/autostart.sh" ]; then 
+            component_name=$(basename $component)
+            echo "Stopping $component_name"
+            stop_component $component_name
+        fi
+    done
+
 }
 
 start_component() {

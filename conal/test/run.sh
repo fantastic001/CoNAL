@@ -27,5 +27,9 @@ cd $TEMP_DIR
 source setup-env.sh .
 source $MODULE_DIR/run.sh
 
+component_autostop
+
 echo Removing $TEMP_DIR
 rm -rf $TEMP_DIR
+
+exit $TEST_RESULT

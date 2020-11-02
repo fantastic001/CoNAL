@@ -31,6 +31,7 @@ void ActivityManagerComponent::start() {
         }
     }
     else {
+        logger->info("Running in master mode");
         server = std::make_shared<TCPServer>("0.0.0.0", 6969);
         serverThread = std::thread(&ActivityManagerComponent::runServer, this);
         serverThread.detach();

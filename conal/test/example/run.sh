@@ -2,6 +2,7 @@
 
 ./exampleIntegrationTest 
 
-grep "Registering component activity_manager" log/ComponentManager.log
+grep "Registering component activity_manager" log/ComponentManager.log && \
+    grep "Server initialized" log/activity_manager.log 
 
-exit $?
+TEST_RESULT=$?
