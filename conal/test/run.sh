@@ -4,7 +4,9 @@ THIS_DIR=$(readlink -f $(dirname $0))
 CONAL_DIR=$2
 MODULE_DIR="$THIS_DIR/$1"
 MODULE_NAME=$1
-
+echo 
+echo 
+echo "######### $MODULE_NAME #########"
 
 # copy conal directory to temporary directory 
 TEMP_DIR=/tmp/conal-moduletest-$$
