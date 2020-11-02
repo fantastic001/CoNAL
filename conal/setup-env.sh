@@ -94,6 +94,8 @@ if [ "$CONAL_INITIALIZED" != "1" ]; then
         CONAL_DIR="$1"
     fi
 
+    export CONAL_DIR
+
     for component in $CONAL_DIR/components/*; do 
         if [ -d "$component" ]; then 
             export PATH="$component/bin:$PATH"

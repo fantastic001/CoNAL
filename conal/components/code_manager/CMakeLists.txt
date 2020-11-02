@@ -14,7 +14,7 @@ set(CODE_MANAGER_TEST_SOURCES
 )
 
 add_executable(code_manager ${CODE_MANAGER_SOURCES})
-target_link_libraries(code_manager PUBLIC ConalFramework)
+target_link_libraries(code_manager PUBLIC ConalFramework dl)
 target_include_directories(code_manager PUBLIC ../../framework/include)
 target_include_directories(code_manager PUBLIC ./src)
 
@@ -22,6 +22,18 @@ target_include_directories(code_manager PUBLIC ./src)
 install(TARGETS code_manager DESTINATION components/code_manager/bin)
 
 add_executable(testCodeManager ${CODE_MANAGER_TEST_SOURCES})
-target_link_libraries(testCodeManager gtest gmock)
+target_link_libraries(testCodeManager gtest gmock dl)
 
 add_test(NAME test_code_manager COMMAND testCodeManager)
+
+
+set(LOADERS 
+    DummyLoader
+)
+
+foreach(LOADER ${LOADERS})
+    add_library(${LOADER} SHARED loaders/${LOADER}/${LOADER}.cpp)
+    target_include_directories(${LOADER} PUBLIC src/ loaders/${LOADER}/)
+    install(TARGETS ${LOADER} DESTINATION loaders/)
+endforeach(LOADER)
+

@@ -10,7 +10,7 @@ CodeManagerComponent::CodeManagerComponent() {
 }
 void CodeManagerComponent::start() {
     logger->info("Starting Code manager component");
-    
+    loaderManager = std::make_shared<LoaderManager>(logger);
 }
 
 void CodeManagerComponent::stop() {

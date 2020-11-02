@@ -4,10 +4,12 @@
 #include <Message.hpp>
 #include <vector> 
 #include <string>
+#include <LoaderManager.hpp> 
 
 namespace conal {
     namespace code_manager {
         class CodeManagerComponent : public conal::framework::Component {
+            std::shared_ptr<::conal::code_manager::LoaderManager> loaderManager;
                 
             public: 
                 explicit CodeManagerComponent();
