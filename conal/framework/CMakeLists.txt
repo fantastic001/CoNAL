@@ -21,6 +21,9 @@ set(FRAMEWORK_HEADERS
     ${FRAMEWORK_INCLUDE_DIRECTORY}/TCPCLient.hpp
     ${FRAMEWORK_INCLUDE_DIRECTORY}/TCPServer.hpp
 )
+set(FRAMEWORK_TEST_SOURCES
+        test/main.cpp
+    )
 
 # first we can indicate the documentation build as an option and set it to ON by default
 option(BUILD_DOC "Build documentation" ON)
@@ -55,3 +58,14 @@ target_compile_features(ConalFramework PUBLIC cxx_std_17)
 target_link_libraries(ConalFramework PUBLIC Threads::Threads)
 
 install(TARGETS ConalFramework DESTINATION lib/)
+
+option(FRAMEWORK_TESTS "Build the tests" ON)
+if(FRAMEWORK_TESTS)
+    
+    add_executable(testFramework ${FRAMEWORK_TEST_SOURCES})
+    target_link_libraries(testFramework gtest gmock)
+
+    add_test(NAME test_framework COMMAND testFramework)
+
+    
+endif()

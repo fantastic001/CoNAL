@@ -2,6 +2,9 @@ cmake_minimum_required (VERSION 2.6)
 
 project (CoNAL)
 
+enable_testing()
+
+
 SET(Boost_USE_STATIC_LIBS OFF)
 SET(Boost_USE_MULTITHREAD ON)
 FIND_PACKAGE(Boost 1.42.0 REQUIRED COMPONENTS system thread regex)
