@@ -19,7 +19,22 @@ namespace conal {
             std::mutex mutex;
 
         public:
+            /*
+            Create TCPServer instance.
+            */
             TCPServer(std::string bindAddress, int port);
+            
+            /*
+            Start listening on bindAddress and port given in constructor. 
+
+            NOTE: c should accept std::shared_ptr<Connection> 
+            NOTE: m should accept std::shared_ptr<Connection> and std::string
+
+            \param c callable object which is called when new connection is connected. 
+            \param m callable object which is called when message is sent from some connection
+
+
+            */
             template<typename ConnectionHandler, typename MessageHandler> 
             void run(ConnectionHandler c, MessageHandler m) {
                 this->accept(c,m);

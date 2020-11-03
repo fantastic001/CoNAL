@@ -37,16 +37,21 @@ void CodeManagerComponent::handleMessage(Message msg) {
             for (auto p : params) {
                 logger->debug(p);
             }
-            auto loader = loaderManager->findLoader(path, params);
+            EnvParams env = getEnvParams();
+            auto loader = loaderManager->findLoader(path, params, env);
             if (!loader) {
                 logger->error("No suitable loader for " + path);
             }
             else {
                 logger->info("Loading " + path);
-                std::string code = loader->load(path, params);
+                std::string code = loader->load(path, params, env);
                 logger->info("Running " + path);
                 loader->run(code);
             }
         }
     }
+}
+
+EnvParams CodeManagerComponent::getEnvParams() {
+    return EnvParams();
 }

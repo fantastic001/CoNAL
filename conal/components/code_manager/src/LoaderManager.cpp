@@ -30,10 +30,10 @@ LoaderManager::LoaderManager(std::shared_ptr<::conal::framework::Logger> logger)
 
 }
 
-std::shared_ptr<Loader> LoaderManager::findLoader(std::string path, std::vector<std::string> params) {
+std::shared_ptr<Loader> LoaderManager::findLoader(std::string path, std::vector<std::string> params, EnvParams env) {
     for (auto loader : loaders) {
         logger->debug("Checking loader");
-        if (loader->validate(path, params)) {
+        if (loader->validate(path, params, env)) {
             logger->debug("Found loader!");
             return loader;
         }

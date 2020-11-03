@@ -11,6 +11,8 @@ namespace conal {
         class CodeManagerComponent : public conal::framework::Component {
             std::shared_ptr<::conal::code_manager::LoaderManager> loaderManager;
                 
+                EnvParams getEnvParams();
+
             public: 
                 explicit CodeManagerComponent();
                 virtual void start();

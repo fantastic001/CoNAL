@@ -2,10 +2,10 @@
 
 
 
-bool DummyLoader::validate(std::string path, std::vector<std::string> params) {
+bool DummyLoader::validate(std::string path, std::vector<std::string> params, EnvParams env) {
     return false; 
 }
-std::string DummyLoader::load(std::string path, std::vector<std::string> params) {
+std::string DummyLoader::load(std::string path, std::vector<std::string> params, EnvParams env) {
     return "";
 }
 
