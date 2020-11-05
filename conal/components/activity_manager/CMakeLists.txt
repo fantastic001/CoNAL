@@ -7,6 +7,7 @@ set(ACTIVITY_MANAGER_SOURCES
     src/main.cpp
     src/ActivityManagerComponent.cpp
     src/ConnectionManager.cpp
+    src/Task.cpp
 )
 
 set(ACTIVITY_MANAGER_TEST_SOURCES
