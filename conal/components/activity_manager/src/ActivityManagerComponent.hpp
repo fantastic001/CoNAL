@@ -5,7 +5,7 @@
 #include <TCPServer.hpp>
 #include <TCPCLient.hpp>
 #include "ConnectionManager.hpp"
-
+#include <Task.hpp>
 namespace conal {
     namespace activity_manager {
         class ActivityManagerComponent : public conal::framework::Component {
@@ -14,6 +14,8 @@ namespace conal {
                 ConnectionManager connectionManager;
                 std::string masterHostname;
                 std::shared_ptr<::conal::framework::TCPClient> clientPtr;
+                std::vector<Task> tasks; 
+                std::mutex task_mutex;
 
                 void runServer(); 
             public: 
