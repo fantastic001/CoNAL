@@ -21,6 +21,7 @@ std::shared_ptr<ComponentManager> ComponentManager::getInstance() {
 void ComponentManager::registerComponent(std::string name, std::shared_ptr<Component> component) {
     logger.info("Registering component " + name);
     component->logger = std::shared_ptr<Logger>(new Logger(name));
+    component->name = name;
     logger.info("Starting component " + name);
     component->start();
     component.get()->messageReadingThread = std::thread([&component, &name] () {;

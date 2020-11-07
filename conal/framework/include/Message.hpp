@@ -3,6 +3,7 @@
 
 #include <string>
 #include "Performative.hpp"
+#include <iostream>
 
 namespace conal {
     namespace framework {
@@ -11,6 +12,21 @@ namespace conal {
             std::string from_component;
             std::string to_component;
             std::string body;
+
+            Message(
+                ::conal::framework::Performative performative,
+                std::string from_component,
+                std::string to_component,
+                std::string body) {
+                    this->performative = performative; 
+                    this->from_component = from_component;
+                    this->to_component = to_component;
+                    this->body = body;
+            }
+            Message() {
+                
+            }
         };
+        std::ostream& operator<<(std::ostream& out, const conal::framework::Message& message);
     }
 }

@@ -16,3 +16,17 @@ std::istream& ::conal::framework::operator>> (std::istream& in, Performative& pe
     return in; 
 
 }
+
+
+std::ostream& ::conal::framework::operator<< (std::ostream& in, const Performative& perf) {
+    if (perf == Performative::REQUEST) in << "REQUEST";
+    if (perf == Performative::START) in << "START";
+    if (perf == Performative::ACCEPT) in << "ACCEPT";
+    if (perf == Performative::CREATE) in << "CREATE";
+    if (perf == Performative::STOP) in << "STOP";
+    if (perf == Performative::REJECT) in << "REJECT";
+    if (perf == Performative::DESTROY) in << "DESTROY";
+    if (perf == Performative::DATA) in << "DATA";
+    return in; 
+
+}

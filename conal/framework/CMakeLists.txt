@@ -5,6 +5,8 @@ set(FRAMEWORK_SOURCES
     src/TCPServer.cpp
     src/Connection.cpp
     src/TCPClient.cpp
+    src/Component.cpp
+    src/Message.cpp
 )
 # Waiting for CMake 3.19 for this feature 
 # file(REAL_PATH include/ FRAMEWORK_INCLUDE_DIRECTORY)

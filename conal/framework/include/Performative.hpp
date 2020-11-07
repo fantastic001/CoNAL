@@ -15,5 +15,6 @@ namespace conal {
         };
 
         std::istream& operator>> (std::istream& in, Performative& perf);
+        std::ostream& operator<< (std::ostream& in, const Performative& perf);
     } 
 }

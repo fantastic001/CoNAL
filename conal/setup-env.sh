@@ -47,7 +47,7 @@ start_component() {
     mkdir -p $CONAL_TEMP_DIR/comm/$component
     component_msg_fifo=$CONAL_TEMP_DIR/comm/$component/messages
     mkfifo $component_msg_fifo
-    COMPONENT_MSG_FIFO=$component_msg_fifo LD_LIBRARY_PATH=$CONAL_DIR/lib/:$LD_LIBRARY_PATH $CONAL_DIR/components/$component/bin/$component &
+    COMPONENT_COMM_DIR=$CONAL_TEMP_DIR/comm/ COMPONENT_MSG_FIFO=$component_msg_fifo LD_LIBRARY_PATH=$CONAL_DIR/lib/:$LD_LIBRARY_PATH $CONAL_DIR/components/$component/bin/$component &
     echo $! > $component_state_dir/$component.pid
 }
 

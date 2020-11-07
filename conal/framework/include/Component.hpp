@@ -15,9 +15,11 @@ namespace conal {
                 friend class ComponentManager;
 
                 std::thread messageReadingThread;
+                std::string name;
             
             protected:
                 std::shared_ptr<Logger> logger;
+                void sendMessage(std::string to_component, Performative performative, std::string body);
 
             public: 
                 // needs to be implemented by component. 

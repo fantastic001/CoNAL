@@ -18,8 +18,10 @@ cp $MODULE_DIR/config/* $TEMP_DIR/env/
 if [ -f $MODULE_DIR/src/CMakeLists.txt ]; then 
     mkdir $TEMP_DIR/build
     cd $TEMP_DIR/build
+    export LDFLAGS="-L$TEMP_DIR/lib/ $LDFLAGS"
     cmake $MODULE_DIR/src/
-    make 
+    make
+    ls $TEMP_DIR/lib/
     echo "Copying executables to temp directory"
     find . -maxdepth 1 -executable -type f -print -exec cp {} .. \;
 fi
