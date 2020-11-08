@@ -115,6 +115,7 @@ void ActivityManagerComponent::handleMessage(Message msg) {
         std::string path; 
         std::vector<std::string> params;
         reader >> path;
+        logger->info("Requested to run program: " + path);
         while (reader.good()) {
             std::string param; 
             reader >> param;
@@ -140,6 +141,7 @@ void ActivityManagerComponent::handleMessage(Message msg) {
     }
     else if (msg.performative == Performative::ACCEPT) {
         std::string body = msg.body;
+        logger->debug("Accepted for " + body);
         std::unique_lock<std::mutex> lock(task_mutex);
         stringstream ss(msg.body);
         int id; 
@@ -171,6 +173,8 @@ void ActivityManagerComponent::handleMessage(Message msg) {
         ss >> hostname;
         std::string code;
         ss >> code;
+        std::string loaderName;
+        ss >> loaderName;
         tasks[id].setState(TaskState::LOADING);
         for (auto cc : connectionManager.getConnections()) {
             if (cc->getHostname() == hostname) {
@@ -182,7 +186,9 @@ void ActivityManagerComponent::handleMessage(Message msg) {
             tasks[id].setState(TaskState::SENDING);
             idWriter << id;
             for (auto c : tasks[id].getConnections()) {
-                c->send("CODE " + idWriter.str() + " " + tasks[id].getCode(c));
+                logger->debug("Compiled for " + c->getHostname() + " id=" + idWriter.str() + " using loader " + loaderName);
+                c->send("CODE " + idWriter.str() + " " + tasks[id].getCode(c) + " " + loaderName);
+
             }
             tasks[id].setState(TaskState::SENT);
         }
@@ -204,28 +210,16 @@ void ActivityManagerComponent::handleClientReply(std::string reply) {
             ss >> code;
             // Create Task here and assign code to it
             clientTaskIdToCodeMapping[id] = code;
-            string path; 
-            vector<string> params;
-            ss >> path; 
-            clientTaskIdToPathMapping[id] = path;
-            while (ss.good()) {
-                string param;
-                ss >> param;
-                params.push_back(param);
-                clientTaskIdToParamsMapping[id] = params;
-            }
+            std::string loaderName;
+            ss >> loaderName;
+            clientTaskIdToLoaderMapping[id] = loaderName;
         }
         else if (command == "START") {
             int id; 
             ss >> id;
-            string path = clientTaskIdToPathMapping[id];
-            auto params = clientTaskIdToParamsMapping[id];
+            string loaderName = clientTaskIdToLoaderMapping[id];
             string code = clientTaskIdToCodeMapping[id];
-            stringstream paramsWriter;
-            for (auto p : params) {
-                paramsWriter << p << " ";
-            }
-            sendMessage("code_manager", Performative::START, path + " " + paramsWriter.str() + code);
+            sendMessage("code_manager", Performative::START, loaderName + " " + code);
         }
 
 }

@@ -18,7 +18,7 @@ namespace conal {
                 std::mutex task_mutex;
 
                 std::map<int, std::string> clientTaskIdToCodeMapping;
-                std::map<int, std::string> clientTaskIdToPathMapping;
+                std::map<int, std::string> clientTaskIdToLoaderMapping;
                 std::map<int, std::vector<std::string>> clientTaskIdToParamsMapping;
 
 

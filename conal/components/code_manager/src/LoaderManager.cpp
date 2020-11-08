@@ -24,20 +24,24 @@ LoaderManager::LoaderManager(std::shared_ptr<::conal::framework::Logger> logger)
             if (dlsym_error) {
                 logger->error(std::string(dlsym_error));
             }
-            loaders.push_back(std::shared_ptr<Loader>(loader));
+            loaders[library.path().filename()]=(std::shared_ptr<Loader>(loader));
         }
     }
 
 }
 
-std::shared_ptr<Loader> LoaderManager::findLoader(std::string path, std::vector<std::string> params, EnvParams env) {
+std::pair<std::string, std::shared_ptr<Loader>> LoaderManager::findLoader(std::string path, std::vector<std::string> params, EnvParams env) {
     for (auto loader : loaders) {
         logger->debug("Checking loader");
-        if (loader->validate(path, params, env)) {
+        if (loader.second->validate(path, params, env)) {
             logger->debug("Found loader!");
             return loader;
         }
     }
     logger->debug("Loader not found by LoaderManager");
-    return nullptr;
+    return std::make_pair("", nullptr);
+}
+void LoaderManager::start(std::string loaderName, std::string code) {
+    logger->info("Starting program with loader " + loaderName);
+    loaders[loaderName]->run(code);
 }

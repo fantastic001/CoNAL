@@ -9,8 +9,11 @@
 namespace conal {
     namespace code_manager {
         class CodeManagerComponent : public conal::framework::Component {
-            std::shared_ptr<::conal::code_manager::LoaderManager> loaderManager;
+                using LoaderPtr = std::pair<std::string, std::shared_ptr<Loader>>;
+                using LoadingResult = std::pair<std::string, LoaderPtr>;
+                std::shared_ptr<::conal::code_manager::LoaderManager> loaderManager;
                 
+                std::map<std::pair<int, std::string>, LoadingResult> taskIdHostnameToCodeMapping;
                 EnvParams getEnvParams();
 
             public: 

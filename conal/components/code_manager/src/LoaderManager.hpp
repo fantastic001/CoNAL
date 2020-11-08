@@ -21,7 +21,7 @@ namespace conal {
         */
         class LoaderManager {
                 std::shared_ptr<::conal::framework::Logger> logger;
-                std::vector<std::shared_ptr<Loader>> loaders; 
+                std::map<std::string, std::shared_ptr<Loader>> loaders;
             public: 
                 /* 
                 Construct LoaderManager
@@ -34,7 +34,8 @@ namespace conal {
                 Given path, parameters and information about environment, function finds suitable 
                 loader to load and run given code..
                 */
-                std::shared_ptr<Loader> findLoader(std::string path, std::vector<std::string> params, EnvParams env);
+                std::pair<std::string, std::shared_ptr<Loader>> findLoader(std::string path, std::vector<std::string> params, EnvParams env);
+                void start(std::string loaderName, std::string code);
 
 
         };
