@@ -31,6 +31,10 @@ void ActivityManagerComponent::start() {
         else {
             logger->error("Did not get reply to handshake");
         }
+        do {
+            reply = clientPtr->readLine();
+            handleClientReply(reply);
+        } while (reply != "END");
     }
     else {
         logger->info("Running in master mode");
@@ -66,13 +70,6 @@ void ActivityManagerComponent::runServer() {
         else if (command == "HELLO") {
             conn->send("HELLO2");
         }
-        else if (command == "CODE") {
-            int id; 
-            std::string code; 
-            ss >> id;
-            ss >> code;
-            // Create Task here and assign code to it
-        }
         else if (command == "READY") {
             int id; 
             std::string code; 
@@ -86,21 +83,7 @@ void ActivityManagerComponent::runServer() {
             ss >> code;
             // Create Task here and assign code to it
         }
-        // CLIEN ONLY
-        else if (command == "CODE") {
-            int id; 
-            std::string code; 
-            ss >> id;
-            ss >> code;
-            // Create Task here and assign code to it
-        }
-        else if (command == "START") {
-            int id; 
-            ss >> id;
-            // CLIENT SIDE
-            // Send code to code manager for running it
-        }
-
+        
     });
 }
 
@@ -208,4 +191,41 @@ void ActivityManagerComponent::handleMessage(Message msg) {
 
 bool ActivityManagerComponent::isSlave() const {
     return ! masterHostname.empty();
+}
+
+void ActivityManagerComponent::handleClientReply(std::string reply) {
+        std::string command; 
+        std::stringstream ss(reply);
+        ss >> command;
+        if (command == "CODE") {
+            int id; 
+            std::string code; 
+            ss >> id;
+            ss >> code;
+            // Create Task here and assign code to it
+            clientTaskIdToCodeMapping[id] = code;
+            string path; 
+            vector<string> params;
+            ss >> path; 
+            clientTaskIdToPathMapping[id] = path;
+            while (ss.good()) {
+                string param;
+                ss >> param;
+                params.push_back(param);
+                clientTaskIdToParamsMapping[id] = params;
+            }
+        }
+        else if (command == "START") {
+            int id; 
+            ss >> id;
+            string path = clientTaskIdToPathMapping[id];
+            auto params = clientTaskIdToParamsMapping[id];
+            string code = clientTaskIdToCodeMapping[id];
+            stringstream paramsWriter;
+            for (auto p : params) {
+                paramsWriter << p << " ";
+            }
+            sendMessage("code_manager", Performative::START, path + " " + paramsWriter.str() + code);
+        }
+
 }

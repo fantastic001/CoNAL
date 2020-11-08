@@ -17,6 +17,11 @@ namespace conal {
                 std::vector<Task> tasks; 
                 std::mutex task_mutex;
 
+                std::map<int, std::string> clientTaskIdToCodeMapping;
+                std::map<int, std::string> clientTaskIdToPathMapping;
+                std::map<int, std::vector<std::string>> clientTaskIdToParamsMapping;
+
+
                 void runServer(); 
             public: 
                 explicit ActivityManagerComponent();
@@ -24,6 +29,7 @@ namespace conal {
                 virtual void stop();
                 virtual void handleMessage(::conal::framework::Message msg);
                 bool isSlave() const;
+                void handleClientReply(std::string reply);
         };
     }
 }
