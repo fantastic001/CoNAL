@@ -71,6 +71,7 @@ void CodeManagerComponent::handleMessage(Message msg) {
         ss >> id >> hostname;
         auto code = taskIdHostnameToCodeMapping[std::make_pair(id, hostname)].first;
         std::string loaderName = taskIdHostnameToCodeMapping[std::make_pair(id, hostname)].second.first;
+        logger->debug("Sending code for " + ss.str() + " for loader " + loaderName + " CODE=" + code);
         sendMessage("activity_manager", Performative::DATA, body + " " + code + " " + loaderName);
     }
     else if (msg.performative == Performative::START) {

@@ -1,5 +1,4 @@
 #include "Task.hpp"
-
 using namespace conal::activity_manager;
 
 Task::Task(std::string path, std::vector<std::string> params) 

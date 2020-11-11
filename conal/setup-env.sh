@@ -3,8 +3,10 @@
 # Use CONAL_MASTER_HOSTNAME=xxx.yyy.zzz.www to tell CoNAL environment that it is running in slave mode 
 # Use CONAL_CLIENT_NAME to set proper client name on server
 
-CONAL_MASTER_HOSTNAME=""
-CONAL_CLIENT_NAME=""
+if [ -z "$CONAL_MASTER_HOSTNAME" ]; then 
+    CONAL_MASTER_HOSTNAME=""
+    CONAL_CLIENT_NAME=""
+fi
 CONAL_TEMP_DIR=/tmp/conal/
 
 export CONAL_CLIENT_NAME
@@ -42,6 +44,7 @@ start_component() {
         return 
     fi
     # clear old directory structure 
+    mkdir -p $CONAL_DIR/log
     rm -rf $component_state_dir $CONAL_TEMP_DIR/comm/$component
     mkdir -p $component_state_dir
     mkdir -p $CONAL_TEMP_DIR/comm/$component
@@ -71,6 +74,10 @@ send_message() {
     performative=$2 
     message="$3"
     echo "$performative console $component $message" > $CONAL_TEMP_DIR/comm/$component/messages
+}
+
+start_task() {
+    send_message activity_manager CREATE "$*"
 }
 
 request() {

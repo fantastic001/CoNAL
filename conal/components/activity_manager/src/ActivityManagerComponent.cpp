@@ -33,7 +33,7 @@ void ActivityManagerComponent::start() {
         }
         do {
             reply = clientPtr->readLine();
-            handleClientReply(reply);
+            handleClientReply(clientPtr, reply);
         } while (reply != "END");
     }
     else {
@@ -73,15 +73,22 @@ void ActivityManagerComponent::runServer() {
         else if (command == "READY") {
             int id; 
             std::string code; 
+            std::string loaderName; 
             ss >> id;
-            // if all have been received and everything is okay, send starting commands
+            ss >> code; 
+            ss >> loaderName;
+            std::stringstream idWriter;
+            idWriter << id; 
+            if (!code.empty()) {
+                conn->send("START " + idWriter.str() + " " + code + " " + loaderName);
+            }
         }
         else if (command == "STARTED") {
             int id; 
             std::string code; 
             ss >> id;
             ss >> code;
-            // Create Task here and assign code to it
+            logger->info(message);
         }
         
     });
@@ -122,7 +129,7 @@ void ActivityManagerComponent::handleMessage(Message msg) {
             params.push_back(param);
         }
         tasks.push_back(Task(path, params));
-        auto task = tasks.back();
+        auto& task = tasks.back();
         task.setState(TaskState::PREPARING);
         auto id = tasks.size()-1;
         for (auto connection : connectionManager.getConnections()) {
@@ -137,7 +144,6 @@ void ActivityManagerComponent::handleMessage(Message msg) {
                 Performative::REQUEST, 
                 ss.str() + " " + body);
         }
-        task.setState(TaskState::PREPARED);
     }
     else if (msg.performative == Performative::ACCEPT) {
         std::string body = msg.body;
@@ -148,18 +154,24 @@ void ActivityManagerComponent::handleMessage(Message msg) {
         std::string hostname;
         ss >> id; 
         ss >> hostname;
+        std::stringstream idWriter;
+        idWriter << id;
+        logger->debug("Setting task state for particular connection");
         for (auto conn : connectionManager.getConnections()) {
             if (conn->getHostname() == hostname) {
+                logger->debug("CN=" + conn->getHostname());
                 tasks[id].prepare(conn);
             }
         }
-        if (tasks[id].isPrepared()) {
+        logger->debug("Checking if connections are prepared");
+        if (tasks[id].getState() == TaskState::PREPARED) {
+            logger->debug("Ready to request code");
             tasks[id].setState(TaskState::LOADING);
             for (auto connection : tasks[id].getConnections()) {
                 sendMessage(
                     "code_manager",
                     Performative::DATA,
-                    body
+                    idWriter.str() + " " + connection->getHostname()
                 );
             }
         }
@@ -181,7 +193,7 @@ void ActivityManagerComponent::handleMessage(Message msg) {
                 tasks[id].load(cc, code);
             }
         }
-        if (tasks[id].isLoadable()) {
+        if (tasks[id].getState() == TaskState::LOADED) {
             stringstream idWriter;
             tasks[id].setState(TaskState::SENDING);
             idWriter << id;
@@ -199,20 +211,25 @@ bool ActivityManagerComponent::isSlave() const {
     return ! masterHostname.empty();
 }
 
-void ActivityManagerComponent::handleClientReply(std::string reply) {
+void ActivityManagerComponent::handleClientReply(std::shared_ptr<::conal::framework::TCPClient> conn, std::string reply) {
         std::string command; 
         std::stringstream ss(reply);
         ss >> command;
         if (command == "CODE") {
             int id; 
+            std::stringstream idWriter;
             std::string code; 
             ss >> id;
             ss >> code;
+            idWriter << id;
             // Create Task here and assign code to it
             clientTaskIdToCodeMapping[id] = code;
             std::string loaderName;
             ss >> loaderName;
             clientTaskIdToLoaderMapping[id] = loaderName;
+            logger->debug("Ready to run!");
+            conn->send("READY " + idWriter.str() + " " + code + " " + loaderName);
+
         }
         else if (command == "START") {
             int id; 

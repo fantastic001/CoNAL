@@ -29,7 +29,7 @@ namespace conal {
                 virtual void stop();
                 virtual void handleMessage(::conal::framework::Message msg);
                 bool isSlave() const;
-                void handleClientReply(std::string reply);
+                void handleClientReply(std::shared_ptr<::conal::framework::TCPClient> conn, std::string reply);
         };
     }
 }
