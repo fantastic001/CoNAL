@@ -20,7 +20,7 @@
 	
 	To run CoNAL in slave mode:
 
-		docker run -it --rm --name conal_instance_master \
+		docker run -it --rm --name conal_instance_client \
 			-e CONAL_MASTER_HOSTNAME=masterHostname \
 			-e CONAL_CLIENT_NAME=myClient \
 			fantastixus/conal 
