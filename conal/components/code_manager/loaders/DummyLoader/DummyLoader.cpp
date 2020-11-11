@@ -3,7 +3,7 @@
 #include <iostream>
 
 bool DummyLoader::validate(std::string path, std::vector<std::string> params, EnvParams env) {
-    return true; 
+    return path == "TEST"; 
 }
 std::string DummyLoader::load(std::string path, std::vector<std::string> params, EnvParams env) {
     return "XXX";
