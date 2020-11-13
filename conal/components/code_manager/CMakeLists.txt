@@ -29,10 +29,12 @@ add_test(NAME test_code_manager COMMAND testCodeManager)
 
 set(LOADERS 
     DummyLoader
+    CppLoader
 )
 
 foreach(LOADER ${LOADERS})
     add_library(${LOADER} SHARED loaders/${LOADER}/${LOADER}.cpp)
+    target_link_libraries(${LOADER} PUBLIC ConalFramework dl)
     target_include_directories(${LOADER} PUBLIC src/ loaders/${LOADER}/)
     install(TARGETS ${LOADER} DESTINATION loaders/)
 endforeach(LOADER)
