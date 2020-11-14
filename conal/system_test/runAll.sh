@@ -4,6 +4,10 @@
 THIS_DIR=$(readlink -f $(dirname $0))
 CONAL_DIR=$1
 
+echo "Building docker first..."
+cd $THIS_DIR/../docker
+./build.sh 
+
 cd $THIS_DIR
 FAILED_TESTS=""
 ALL_TESTS=""
