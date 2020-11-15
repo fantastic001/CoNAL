@@ -18,6 +18,8 @@
   int parse(const char*);
   int parse_string(const char*);
   extern "C" yy::parser::symbol_type yylex ();
+  typedef struct yy_buffer_state * YY_BUFFER_STATE;
+  YY_BUFFER_STATE yy_scan_string(const char *str);
 
 %}
 %skeleton "lalr1.cc"
@@ -113,6 +115,7 @@ master_spec : MASTER {
 %%
 
 int parse(const char* text) {
+  yy_scan_string(text);
   yy::parser parse;
   return parse ();
   
