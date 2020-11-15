@@ -6,7 +6,6 @@ install(PROGRAMS autostart.sh
 )
 
 set(ACTIVITY_MANAGER_SOURCES
-    src/main.cpp
     src/ActivityManagerComponent.cpp
     src/ConnectionManager.cpp
     src/Task.cpp
@@ -26,6 +25,7 @@ add_executable(activity_manager
     ${ACTIVITY_MANAGER_SOURCES}
     ${BISON_MyParser_OUTPUTS}
     ${FLEX_MyScanner_OUTPUTS}
+    src/main.cpp
 )
 
 target_link_libraries(activity_manager PUBLIC ConalFramework)
@@ -37,7 +37,16 @@ target_link_libraries(activity_manager PUBLIC ${FLEX_LIBRARIES})
 # installing binaries to components/activity_manager/bin for type TARGETS
 install(TARGETS activity_manager DESTINATION components/activity_manager/bin)
 
-add_executable(testActivityManager ${ACTIVITY_MANAGER_TEST_SOURCES})
+add_executable(testActivityManager ${ACTIVITY_MANAGER_TEST_SOURCES}
+    ${ACTIVITY_MANAGER_SOURCES}
+    ${BISON_MyParser_OUTPUTS}
+    ${FLEX_MyScanner_OUTPUTS}
+)
+target_link_libraries(testActivityManager PUBLIC ConalFramework)
+target_include_directories(testActivityManager PUBLIC ${CMAKE_CURRENT_BINARY_DIR}/)
+target_include_directories(testActivityManager PUBLIC ../../framework/include)
+target_include_directories(testActivityManager PUBLIC ./src)
+target_link_libraries(testActivityManager PUBLIC ${FLEX_LIBRARIES})
 target_link_libraries(testActivityManager gtest gmock)
 
 add_test(NAME test_activity_manager COMMAND testActivityManager)
