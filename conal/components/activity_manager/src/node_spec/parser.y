@@ -17,7 +17,7 @@
   void yyerror(const char *s);
   int parse(const char*);
   int parse_string(const char*);
-  yy::parser::symbol_type yylex ();
+  extern "C" yy::parser::symbol_type yylex ();
 
 %}
 %skeleton "lalr1.cc"
@@ -78,7 +78,7 @@ spec : and_spec |
   not_spec | 
   master_spec { $$ = $1; }
 and_spec : spec AND spec {
-  $$ = new ::conal::activity_manager::node_spec::AndSpecification($1, $3);
+  //$$ = new ::conal::activity_manager::node_spec::AndSpecification($1, $3);
 }
 
 or_spec : spec OR spec {
@@ -116,4 +116,8 @@ int parse(const char* text) {
   yy::parser parse;
   return parse ();
   
+}
+
+void yy::parser::error(const std::string& err) {
+  std::cerr << err; 
 }

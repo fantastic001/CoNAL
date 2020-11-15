@@ -2,7 +2,7 @@
 
 #include <Connection.hpp>
 #include <memory>
-#include "Specification.hpp"
+#include <node_spec/Specification.hpp>
 
 namespace conal {
     namespace activity_manager {

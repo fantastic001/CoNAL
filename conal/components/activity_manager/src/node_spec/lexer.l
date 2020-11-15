@@ -9,7 +9,7 @@
 # define YY_DECL \
   yy::parser::symbol_type yylex ()
 // ... and declare it for the parser's sake.
-YY_DECL;
+extern "C" YY_DECL;
 
 %}
 
