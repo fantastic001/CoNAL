@@ -1,4 +1,6 @@
 
+set(CMAKE_BUILD_TYPE Debug)
+
 install(PROGRAMS autostart.sh 
     DESTINATION components/activity_manager/
 )

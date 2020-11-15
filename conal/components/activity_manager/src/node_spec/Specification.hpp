@@ -9,7 +9,10 @@ namespace conal {
             class Specification {
                 public:
                     virtual bool valid(std::shared_ptr<::conal::framework::Connection> connection) =0;
-                    virtual ~Specification();
+                    virtual std::string dump() =0;
+                    virtual ~Specification() {
+                        
+                    }
             };
         }
     }

@@ -24,6 +24,9 @@ namespace conal {
                         delete spec1; 
                         delete spec2;
                     }
+                    std::string dump() {
+                        return spec1->dump() + "," + spec2->dump();
+                    }
             };
         }
     }

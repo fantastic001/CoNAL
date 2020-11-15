@@ -2,12 +2,11 @@
   #include <iostream>
   #include <node_spec/Specification.hpp>
   #include "parser.hpp"
-  #include <node_spec/Scanner.hpp>
   using namespace std;
   // %option yyclass="::conal::activity_manager::node_spec::Scanner"
 // Tell Flex the lexer's prototype ...
 # define YY_DECL \
-  yy::parser::symbol_type yylex ()
+  yy::parser::symbol_type yylex (::conal::activity_manager::node_spec::Specification**)
 // ... and declare it for the parser's sake.
 extern "C" YY_DECL;
 

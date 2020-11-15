@@ -19,6 +19,10 @@ namespace conal {
                     {
                         return connection->getProperty("NAME") == name;
                     }
+
+                    std::string dump() {
+                        return "name=" + name;
+                    }
             };
         }
     }

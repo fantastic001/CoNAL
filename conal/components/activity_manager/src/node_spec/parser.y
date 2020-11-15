@@ -6,24 +6,28 @@
   #include <node_spec/NameSpecification.hpp>
   #include <node_spec/BroadcastSpecification.hpp>
   #include <node_spec/Specification.hpp>
+  #include <node_spec/Parser.hpp>
 
   #include <memory>
   #include <utility>
+  #include <iostream>
+
+
   #include "parser.hpp"
   using namespace conal::activity_manager::node_spec;
 
   using namespace std;
 
   void yyerror(const char *s);
-  int parse(const char*);
+  Specification* parse(const char*);
   int parse_string(const char*);
-  extern "C" yy::parser::symbol_type yylex ();
+  extern "C" yy::parser::symbol_type yylex (::conal::activity_manager::node_spec::Specification**);
   typedef struct yy_buffer_state * YY_BUFFER_STATE;
   YY_BUFFER_STATE yy_scan_string(const char *str);
 
 %}
 %skeleton "lalr1.cc"
-
+%param {::conal::activity_manager::node_spec::Specification** result }
 %language "C++"
 %define api.value.type variant
 %define api.token.constructor
@@ -71,6 +75,8 @@
 // make a real one shortly:
 
 
+start : spec  {  *result = $1; }
+
 spec : and_spec | 
   or_spec | 
   broadcast_spec | 
@@ -78,9 +84,9 @@ spec : and_spec |
   name_spec | 
   param_spec | 
   not_spec | 
-  master_spec { $$ = $1; }
+  master_spec;
 and_spec : spec AND spec {
-  //$$ = new ::conal::activity_manager::node_spec::AndSpecification($1, $3);
+  $$ = new ::conal::activity_manager::node_spec::AndSpecification($1, $3);
 }
 
 or_spec : spec OR spec {
@@ -88,7 +94,7 @@ or_spec : spec OR spec {
 }
 
 broadcast_spec : BROADCAST_OPERATOR {
-  //$$ = BroadcastSpecification();
+  $$ = new BroadcastSpecification();
 }
 
 factor_spec : OPEN_BRACKET spec CLOSED_BRACKET {
@@ -114,11 +120,17 @@ master_spec : MASTER {
 
 %%
 
-int parse(const char* text) {
+Specification* conal::activity_manager::node_spec::Parser::parse(const char* text) {
   yy_scan_string(text);
-  yy::parser parse;
-  return parse ();
-  
+  Specification* result;
+  yy::parser parse(&result);
+  int ret_code = parse ();
+  if (ret_code == 0) return result; 
+  return nullptr;
+}
+
+Specification* parse(const char* text) {
+  return NULL;
 }
 
 void yy::parser::error(const std::string& err) {

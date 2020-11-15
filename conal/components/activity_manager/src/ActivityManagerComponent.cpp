@@ -4,7 +4,8 @@
 #include <TCPServer.hpp>
 #include <Connection.hpp>
 #include <sstream>
-#include <sstream>
+
+#include <node_spec/Parser.hpp>
 
 using namespace conal::activity_manager; 
 using namespace conal::framework;

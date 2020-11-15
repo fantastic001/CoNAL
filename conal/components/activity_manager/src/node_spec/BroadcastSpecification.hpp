@@ -14,6 +14,10 @@ namespace conal {
                     {
                         return true;
                     }
+
+                    std::string dump() {
+                        return "*";
+                    }
             };
         }
     }

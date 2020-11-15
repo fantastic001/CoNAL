@@ -13,6 +13,11 @@ namespace conal {
                     {
                         return true; 
                     }
+
+                    std::string dump() {
+                        // return spec1->dump() + "+" + spec2->dump();
+                        return "OR haha";
+                    }
             };
         }
     }
