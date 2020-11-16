@@ -6,6 +6,9 @@
   #include <node_spec/NameSpecification.hpp>
   #include <node_spec/BroadcastSpecification.hpp>
   #include <node_spec/Specification.hpp>
+  #include <node_spec/NotSpecification.hpp>
+  #include <node_spec/MasterSpecification.hpp>
+  #include <node_spec/ParamSpecification.hpp>
   #include <node_spec/Parser.hpp>
 
   #include <memory>
@@ -90,7 +93,7 @@ and_spec : spec AND spec {
 }
 
 or_spec : spec OR spec {
-  //$$ = OrSpecification($1, $3);
+  $$ = new OrSpecification($1, $3);
 }
 
 broadcast_spec : BROADCAST_OPERATOR {
@@ -102,20 +105,20 @@ factor_spec : OPEN_BRACKET spec CLOSED_BRACKET {
 }
 
 name_spec : STRING EQUALS STRING {
-  //if (std::string($1) == "name" ) $$ = NameSpecification($3);
-  //else yyerror("Only name as parameter is supported. If you have another parameter to check, use [...]=...");
+  if (std::string($1) == "name" ) $$ = new NameSpecification($3);
+  else $$ = nullptr;
 }
 
 param_spec : OPEN_PARAM_BRACKET STRING CLOSED_PARAM_BRACKET EQUALS STRING {
-  
+  $$ = new ParamSpecification($2, $5);
 }
 
 not_spec : NOT spec {
-
+  $$ = new NotSpecification($2);
 }
 
 master_spec : MASTER {
-
+  $$ = new MasterSpecification();
 }
 
 %%

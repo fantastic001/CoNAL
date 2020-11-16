@@ -5,6 +5,13 @@
 TEST(TestParser, TestBasic) {
   ::conal::activity_manager::node_spec::Parser p; 
   EXPECT_EQ(p.parse("*,*")->dump(), std::string("*,*"));
+  EXPECT_EQ(p.parse("*+*")->dump(), std::string("*+*"));
+  EXPECT_EQ(p.parse("!*")->dump(), std::string("!*"));
+  EXPECT_EQ(p.parse("name=ana")->dump(), std::string("name=ana"));
+  EXPECT_EQ(p.parse("[p1]=v1")->dump(), std::string("[p1]=v1"));
+  EXPECT_EQ(p.parse("[p1]=v1+name=spec")->dump(), std::string("[p1]=v1+name=spec"));
+  EXPECT_EQ(p.parse("%")->dump(), std::string("%"));
+
 }
 
 int main(int argc, char **argv) {
