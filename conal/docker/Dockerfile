@@ -8,7 +8,9 @@ RUN pacman -Syu --noconfirm && \
     boost \
     gtest \
     gmock \
-    make && \
+    make \
+    bison \
+    flex && \
     rm -rf /var/cache/pacman/*
 
 COPY . /usr/src/conal 
