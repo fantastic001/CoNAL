@@ -6,6 +6,7 @@
 #include <mutex>
 
 #include <Connection.hpp>
+#include <node_spec/Specification.hpp>
 
 namespace conal {
     namespace activity_manager {
@@ -24,6 +25,10 @@ namespace conal {
 
             // get list of all managed connections 
             std::list<std::shared_ptr<::conal::framework::Connection>> getConnections() const; 
+
+            // Given specification from conal::activity_manager::node_spec::Parser::parse(code)
+            // return connections satisfying requirements
+            std::list< std::shared_ptr<::conal::framework::Connection>> select(node_spec::Specification*);
         };
     }
 }

@@ -4,6 +4,9 @@
 
 using namespace ::conal::framework;
 using namespace std;
+namespace ns = conal::activity_manager::node_spec;
+namespace am = conal::activity_manager;
+namespace cf = conal::framework;
 
 conal::activity_manager::ConnectionManager::ConnectionManager() {
 }
@@ -26,4 +29,13 @@ void conal::activity_manager::ConnectionManager::removeClosed() {
 
 list<shared_ptr<Connection>> conal::activity_manager::ConnectionManager::getConnections() const {
     return connections;
+}
+std::list< std::shared_ptr<cf::Connection>> am::ConnectionManager::select(ns::Specification* spec) {
+    list<std::shared_ptr<cf::Connection>> result; 
+    for (auto conn : connections) {
+        if (spec->valid(conn)) {
+            result.push_back(conn);
+        }
+    }
+    return result;
 }
