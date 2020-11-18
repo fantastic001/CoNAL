@@ -4,10 +4,12 @@ using namespace std;
 using namespace conal::data_manager; 
 
 void ignore_all(string& code, char token) {
+    if (code.size() == 0) return; 
     while (code.at(0) == token) code.erase(0, 1);
 }
 
 string accept_string(string& code) {
+    if (code.size() == 0) return ""; 
     ignore_all(code, ' '); 
     string result = ""; 
     while (code.at(0) != ' ' && code.at(0) != '(' && code.at(0) != ',' && code.at(0) != ')'
@@ -20,6 +22,7 @@ string accept_string(string& code) {
 
 string accept_token(string& code, char token) {
     ignore_all(code, ' ');
+    if (code.size() == 0) return ""; 
     if (code.at(0) == token) {
         code.erase(0, 1);
         string res = "";
@@ -31,6 +34,7 @@ string accept_token(string& code, char token) {
 
 bool next_token(string& code, char token) {
     ignore_all(code, ' ');
+    if (code.size() == 0) return false; 
     if (code.at(0) == token) return true; 
     else return false; 
 }
