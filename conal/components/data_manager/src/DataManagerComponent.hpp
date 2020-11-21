@@ -4,17 +4,18 @@
 #include <Message.hpp>
 #include <vector> 
 #include <string>
-#include <SourceManager.hpp> 
+#include <list>
+#include <DataStorage.hpp>
 
 namespace conal {
     namespace data_manager {
         class DataManagerComponent : public conal::framework::Component {
-                using SourcePtr = std::pair<std::string, std::shared_ptr<Source>>;
-                using LoadingResult = std::pair<std::string, SourcePtr>;
-                std::shared_ptr<::conal::data_manager::SourceManager> sourceManager;
+                std::shared_ptr<DataStorage> storage; 
                 
-                std::map<std::pair<int, std::string>, LoadingResult> taskIdHostnameToDataMapping;
+                std::map<int, std::list<std::string>> idsToHostnamesMapping;
 
+
+                std::vector<std::shared_ptr<Source>> split(int size, std::shared_ptr<Source> source);
             public: 
                 explicit DataManagerComponent();
                 virtual void start();

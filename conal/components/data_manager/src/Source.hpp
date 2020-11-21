@@ -4,6 +4,8 @@
 #include <string>
 #include <map>
 #include <optional>
+#include <utility>
+#include <memory>
 
 using EnvParams = std::map<std::string, std::string>;
 
@@ -39,6 +41,25 @@ namespace conal {
                 // for instance, for TextFile source, this returns true when 
                 // EOF is found. 
                 virtual bool end() =0; 
+
+                /*
+                This function splits this source in two smaller sources, probably of the same type.
+                This function should call init method to initialize new source.
+                */
+                virtual std::pair<std::shared_ptr<Source>, std::shared_ptr<Source>> split() =0;
+
+                /*
+                This function is aimed for serializing source such that it can 
+                be transfered over network. It is usually base64 encoded string. Serialized 
+                string should not contain any whitspace or newline or tab. 
+                */
+               virtual std::string serialize()=0;
+
+               /*
+               This function is called instead of init to initialize source with parameters
+               when source is transfered over network. 
+               */
+               virtual ErrorValue deserialize(std::string code) =0;
                 
                 virtual ~Source() {
                     

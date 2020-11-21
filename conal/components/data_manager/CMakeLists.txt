@@ -7,6 +7,7 @@ set(DATA_MANAGER_SOURCES
     src/DataManagerComponent.cpp
     src/SourceManager.cpp
     src/DataDefinition.cpp
+    src/DataStorage.cpp
 )
 
 set(DATA_MANAGER_TEST_SOURCES
