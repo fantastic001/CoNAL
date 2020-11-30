@@ -80,6 +80,14 @@ start_task() {
     send_message activity_manager CREATE "$*"
 }
 
+create_data() {
+    local selection
+    local specification 
+    selection="$1"
+    specification="$2"
+    send_message activity_manager DATA "$specification|$selection"
+}
+
 request() {
     local component
     local message 

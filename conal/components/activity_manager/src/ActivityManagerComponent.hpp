@@ -21,6 +21,10 @@ namespace conal {
                 std::map<int, std::string> clientTaskIdToLoaderMapping;
                 std::map<int, std::vector<std::string>> clientTaskIdToParamsMapping;
 
+                using ConnectionList = std::list<std::shared_ptr<conal::framework::Connection>>;
+                std::map<std::string, ConnectionList> dataSpecToConnectionsMapping; 
+                std::map<std::string, int> dataSpecToIdMapping;
+                std::map<int, std::string> dataIdToSourceNameMapping;  
 
                 void runServer(); 
             public: 
@@ -28,6 +32,9 @@ namespace conal {
                 virtual void start();
                 virtual void stop();
                 virtual void handleMessage(::conal::framework::Message msg);
+                void handleMessageFromCodeManager(::conal::framework::Message msg); 
+                void handleMessageFromDataManager(::conal::framework::Message msg); 
+                void handleMessageFromUser(::conal::framework::Message msg); 
                 bool isSlave() const;
                 void handleClientReply(std::shared_ptr<::conal::framework::TCPClient> conn, std::string reply);
         };

@@ -27,7 +27,7 @@ void DataManagerComponent::handleMessage(Message msg) {
         std::getline(bodyReader, specification);
         stringstream reply; 
         int id = storage->create(DataDefinition(specification));
-        reply << id << " " << storage->getSourceName(id);
+        reply << id << " " << storage->getSourceName(id) << " " << specification;
         sendMessage(msg.from_component, Performative::DATA, reply.str()); 
     }
     else if (msg.performative == Performative::REQUEST) {

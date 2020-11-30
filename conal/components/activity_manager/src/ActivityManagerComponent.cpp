@@ -96,57 +96,14 @@ void ActivityManagerComponent::runServer() {
 }
 
 void ActivityManagerComponent::handleMessage(Message msg) {
-    logger->debug("Got message: " + msg.body);
-    if (msg.performative == Performative::REQUEST) {
-        if (msg.body == "list") {
-            logger->info("Listing all connections");
-            connectionManager.removeClosed();
-            logger->debug("Removed all closed connections");
-            int i = 1;
-            auto connections = connectionManager.getConnections();
-            for (auto iter = connections.begin(); iter != connections.end(); iter++) {
-                std::cout 
-                    << "Client " 
-                    << i << ": "
-                    << (*iter)->getHostname() 
-                    << " NAME=" << (*iter)->getProperty("NAME")
-                    << " ARCH=" << (*iter)->getProperty("ARCH")
-                    << std::endl;
-                i++;
-            }
-        }
-    }
-    else if (msg.performative == Performative::CREATE) {
-        std::unique_lock<std::mutex> lock(task_mutex);
-        std::string body = msg.body;
-        std::stringstream reader(msg.body);
-        std::string path; 
-        std::vector<std::string> params;
-        reader >> path;
-        logger->info("Requested to run program: " + path);
-        while (reader.good()) {
-            std::string param; 
-            reader >> param;
-            params.push_back(param);
-        }
-        tasks.push_back(Task(path, params));
-        auto& task = tasks.back();
-        task.setState(TaskState::PREPARING);
-        auto id = tasks.size()-1;
-        for (auto connection : connectionManager.getConnections()) {
-            std::stringstream ss;
-            ss << id << " ";
-            ss << connection->getHostname() << " ";
-            ss << "ARCH=" << connection->getProperty("ARCH");
-            task.addConnection(connection);
-            logger->info("Sending parameters for code manager for task " + ss.str());
-            sendMessage(
-                "code_manager", 
-                Performative::REQUEST, 
-                ss.str() + " " + body);
-        }
-    }
-    else if (msg.performative == Performative::ACCEPT) {
+    logger->debug("Got message: " + msg.body + " from " + msg.from_component);
+    if (msg.from_component == "code_manager") handleMessageFromCodeManager(msg);
+    else if (msg.from_component == "data_manager") handleMessageFromDataManager(msg);
+    else handleMessageFromUser(msg);
+}
+
+void ActivityManagerComponent::handleMessageFromCodeManager(Message msg) {
+    if (msg.performative == Performative::ACCEPT) {
         std::string body = msg.body;
         logger->debug("Accepted for " + body);
         std::unique_lock<std::mutex> lock(task_mutex);
@@ -208,6 +165,94 @@ void ActivityManagerComponent::handleMessage(Message msg) {
     }
 }
 
+void ActivityManagerComponent::handleMessageFromDataManager(Message msg) {
+    if (msg.performative == Performative::DATA) {
+        stringstream reader(msg.body);
+        int id; 
+        string name; 
+        string specification; 
+        reader >> id >> name; 
+        getline(reader, specification);
+        logger->info("Activity manager got information that data source is created in local");
+        logger->debug("Specification: " + specification);
+        if (dataIdToSourceNameMapping.find(id) != dataIdToSourceNameMapping.end()) {
+            logger->warning("This id is already found, maybe it was id of old data source.");
+        }
+        dataSpecToIdMapping[specification] = id;
+        dataIdToSourceNameMapping[id] = name; 
+        if (!isSlave()) {
+            for (auto conn : dataSpecToConnectionsMapping[specification]) {
+                logger->debug("Requesting data creation from: " + conn->getHostname());
+                conn->send("DATA " + specification);
+            }
+        }
+
+
+    }
+}
+
+void ActivityManagerComponent::handleMessageFromUser(Message msg) {
+    if (msg.performative == Performative::REQUEST) {
+        if (msg.body == "list") {
+            logger->info("Listing all connections");
+            connectionManager.removeClosed();
+            logger->debug("Removed all closed connections");
+            int i = 1;
+            auto connections = connectionManager.getConnections();
+            for (auto iter = connections.begin(); iter != connections.end(); iter++) {
+                std::cout 
+                    << "Client " 
+                    << i << ": "
+                    << (*iter)->getHostname() 
+                    << " NAME=" << (*iter)->getProperty("NAME")
+                    << " ARCH=" << (*iter)->getProperty("ARCH")
+                    << std::endl;
+                i++;
+            }
+        }
+    }
+    else if (msg.performative == Performative::CREATE) {
+        std::unique_lock<std::mutex> lock(task_mutex);
+        std::string body = msg.body;
+        std::stringstream reader(msg.body);
+        std::string path; 
+        std::vector<std::string> params;
+        reader >> path;
+        logger->info("Requested to run program: " + path);
+        while (reader.good()) {
+            std::string param; 
+            reader >> param;
+            params.push_back(param);
+        }
+        tasks.push_back(Task(path, params));
+        auto& task = tasks.back();
+        task.setState(TaskState::PREPARING);
+        auto id = tasks.size()-1;
+        for (auto connection : connectionManager.getConnections()) {
+            std::stringstream ss;
+            ss << id << " ";
+            ss << connection->getHostname() << " ";
+            ss << "ARCH=" << connection->getProperty("ARCH");
+            task.addConnection(connection);
+            logger->info("Sending parameters for code manager for task " + ss.str());
+            sendMessage(
+                "code_manager", 
+                Performative::REQUEST, 
+                ss.str() + " " + body);
+        }
+    }
+    else if (msg.performative == Performative::DATA) {
+        int sepIndex = msg.body.find_first_of('|');
+        string specification = msg.body.substr(0, sepIndex);
+        string selection = msg.body.substr(sepIndex + 1, msg.body.size());
+        logger->debug("Specification: " + specification);
+        logger->debug("Selection: " + selection);
+        auto parsedSpecification = node_spec::Parser().parse(specification.c_str());
+        dataSpecToConnectionsMapping[parsedSpecification->dump()] 
+            = connectionManager.select(parsedSpecification);
+        sendMessage("data_manager", Performative::CREATE, specification);
+    }
+}
 bool ActivityManagerComponent::isSlave() const {
     return ! masterHostname.empty();
 }
@@ -238,6 +283,11 @@ void ActivityManagerComponent::handleClientReply(std::shared_ptr<::conal::framew
             string loaderName = clientTaskIdToLoaderMapping[id];
             string code = clientTaskIdToCodeMapping[id];
             sendMessage("code_manager", Performative::START, loaderName + " " + code);
+        }
+        else if (command == "DATA") {
+            string specification; 
+            getline(ss, specification);
+            sendMessage("data_manager", Performative::CREATE, specification);
         }
 
 }
