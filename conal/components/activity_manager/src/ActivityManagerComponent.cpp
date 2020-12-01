@@ -91,6 +91,9 @@ void ActivityManagerComponent::runServer() {
             ss >> code;
             logger->info(message);
         }
+        else if (command == "HI") {
+            logger->debug("Got HI from " + conn->getHostname());
+        }
         
     });
 }
@@ -214,6 +217,19 @@ void ActivityManagerComponent::handleMessageFromUser(Message msg) {
                 i++;
             }
         }
+        else if (msg.body.substr(0, 4) == "send")
+        {
+            auto rest = msg.body.substr(5); // "send ____________..."
+            int separatorIndex = rest.find_first_of('#');
+            auto selection = rest.substr(0, separatorIndex);
+            auto command = rest.substr(separatorIndex+1);
+            node_spec::Parser p;
+            auto selParsed = p.parse(selection.c_str());
+            auto connections = connectionManager.select(selParsed);
+            for (auto conn : connections) {
+                conn->send(command);
+            }
+        } 
     }
     else if (msg.performative == Performative::CREATE) {
         std::unique_lock<std::mutex> lock(task_mutex);
@@ -294,6 +310,10 @@ void ActivityManagerComponent::handleClientReply(std::shared_ptr<::conal::framew
             string specification; 
             getline(ss, specification);
             sendMessage("data_manager", Performative::CREATE, specification);
+        }
+        else if (command == "HI") {
+            logger->debug("Got HI from master!");
+            conn->send("HI");
         }
 
 }

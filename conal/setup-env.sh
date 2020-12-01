@@ -96,6 +96,14 @@ request() {
     send_message $component REQUEST "$message"
 }
 
+send_to_slaves() {
+    local selection 
+    local comm
+    selection="$1"
+    comm="$2"
+    request activity_manager "send $selection#$comm"
+}
+
 platform_capabilities_discovery() {
     export CONAL_HOST_PLATFORM="$(uname -m)"
 }
