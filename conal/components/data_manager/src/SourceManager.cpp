@@ -24,7 +24,12 @@ SourceManager::SourceManager(std::shared_ptr<::conal::framework::Logger> logger)
             if (dlsym_error) {
                 logger->error(std::string(dlsym_error));
             }
-            sources[library.path().filename()]=(std::shared_ptr<Source>(source));
+            std::string sourceName = library.path().filename().stem();
+            if (sourceName.substr(0, 3) == "lib") {
+                sourceName = sourceName.substr(3);
+            }
+            logger->debug(sourceName);
+            sources[sourceName]=(std::shared_ptr<Source>(source));
         }
     }
 

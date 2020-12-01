@@ -27,7 +27,12 @@ void DataManagerComponent::handleMessage(Message msg) {
         std::getline(bodyReader, specification);
         stringstream reply; 
         int id = storage->create(DataDefinition(specification));
+        if (id == -1) {
+            logger->error("Couldn't create data instance");
+            return;
+        }
         reply << id << " " << storage->getSourceName(id) << " " << specification;
+        logger->debug("Created data instance: " + reply.str());
         sendMessage(msg.from_component, Performative::DATA, reply.str()); 
     }
     else if (msg.performative == Performative::REQUEST) {

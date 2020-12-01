@@ -37,6 +37,8 @@ namespace conal {
                 void handleMessageFromUser(::conal::framework::Message msg); 
                 bool isSlave() const;
                 void handleClientReply(std::shared_ptr<::conal::framework::TCPClient> conn, std::string reply);
+
+                std::string clearDataSpecification(std::string spec);
         };
     }
 }

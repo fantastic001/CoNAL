@@ -164,7 +164,10 @@ void ActivityManagerComponent::handleMessageFromCodeManager(Message msg) {
         }
     }
 }
-
+std::string ActivityManagerComponent::clearDataSpecification(std::string spec) {
+    while (spec[0] == ' ') spec.erase(0, 1);
+    return spec;
+}
 void ActivityManagerComponent::handleMessageFromDataManager(Message msg) {
     if (msg.performative == Performative::DATA) {
         stringstream reader(msg.body);
@@ -173,6 +176,7 @@ void ActivityManagerComponent::handleMessageFromDataManager(Message msg) {
         string specification; 
         reader >> id >> name; 
         getline(reader, specification);
+        specification = clearDataSpecification(specification);
         logger->info("Activity manager got information that data source is created in local");
         logger->debug("Specification: " + specification);
         if (dataIdToSourceNameMapping.find(id) != dataIdToSourceNameMapping.end()) {
@@ -247,8 +251,10 @@ void ActivityManagerComponent::handleMessageFromUser(Message msg) {
         string selection = msg.body.substr(sepIndex + 1, msg.body.size());
         logger->debug("Specification: " + specification);
         logger->debug("Selection: " + selection);
-        auto parsedSpecification = node_spec::Parser().parse(specification.c_str());
-        dataSpecToConnectionsMapping[parsedSpecification->dump()] 
+        node_spec::Parser p;
+        auto parsedSpecification = p.parse(selection.c_str());
+        logger->debug("Selection parsed: " + parsedSpecification->dump());
+        dataSpecToConnectionsMapping[specification] 
             = connectionManager.select(parsedSpecification);
         sendMessage("data_manager", Performative::CREATE, specification);
     }

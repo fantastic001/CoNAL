@@ -2,7 +2,7 @@
 # set -e 
 CONAL_DIR=$1
 
-DOCKER_MASTER_COMMAND="docker run --rm -it --name conal_instance_master -v $CONAL_DIR:/opt/conal/ conal"
+DOCKER_MASTER_COMMAND="docker run --rm -it --name conal_instance_data_master -v $CONAL_DIR:/opt/conal/ conal"
 DOCKER_SLAVE_COMMAND="docker run --rm -it --name conal_instance_slave -e CONAL_MASTER_HOSTNAME=172.17.0.2 -e CONAL_CLIENT_NAME=slave1 conal"
 
 FIFO_FILE=/tmp/systemtest
@@ -18,9 +18,10 @@ sleep 1
 
 echo -e "#include <iostream>\nint main() {std::cout << \"HELLO\"; return 0; }" > $CONAL_DIR/test.cpp
 
-echo "start_task test.cpp" > $MASTER_FIFO_FILE-input 
+echo "create_data \"*\" \"DummySource()\"" > $MASTER_FIFO_FILE-input 
 sleep 5
-
+echo "cat log/data_manager.log" > $SLAVE_FIFO_FILE-input 
+sleep 1
 kill -9 $(cat $PIDFILE-*)
 sleep 1 
 rm -rf $SLAVE_FIFO_FILE-* $MASTER_FIFO_FILE-* $PIDFILE-*
@@ -31,6 +32,6 @@ cat $LOG-master.log
 echo "Log for slave"
 cat $LOG-slave.log 
 
-cat $LOG-slave.log | grep "HELLO"
+cat $LOG-slave.log | grep "Created data instance: 0 DummySource DummySource()"
 
 exit $?

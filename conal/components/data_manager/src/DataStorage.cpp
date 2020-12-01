@@ -17,7 +17,12 @@ int DataStorage::create(DataDefinition dataDefinition) {
     auto optionalParams = dataDefinition.getOptionalParams();
 
     auto name_source_pair = sourceManager->findSource(name, params, optionalParams);
-    if (name_source_pair.second) storage.push_back(name_source_pair);
+    if (name_source_pair.second) {
+        logger->debug("SourceManager created data instance");
+        storage.push_back(name_source_pair);
+        return storage.size() - 1;
+    }
+    else return -1;
 }
 
 string DataStorage::getString(int id) {
