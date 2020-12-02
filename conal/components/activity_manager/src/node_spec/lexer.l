@@ -24,7 +24,7 @@ extern "C" YY_DECL;
 =   { return yy::parser::make_EQUALS(); }
 \[  { return yy::parser::make_OPEN_PARAM_BRACKET(); }
 \]  { return yy::parser::make_CLOSED_PARAM_BRACKET(); }
-[a-zA-Z0-9]+   {
+[.a-zA-Z0-9]+   {
   //yylval.sval = strdup(yytext);
   return yy::parser::make_STRING(yytext);
 }
