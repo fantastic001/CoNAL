@@ -70,9 +70,29 @@ void DataManagerComponent::handleMessage(Message msg) {
                 reply(msg, resultWriter.str());
             }
         }
+        else if (command == "get") {
+            string id; 
+            ss >> id;
+            if (msg.from_component == "console") {
+                cout << id << " -> " << storage->getString(id) << "\n";
+            }
+            else {
+                reply(msg, storage->getString(id));
+            }
+        }
+        else if (command == "end") {
+            string id; 
+            ss >> id; 
+            if (msg.from_component == "console") {
+                cout << id << " finalized? " 
+                    << (storage->getSource(id)->end() ? "yes" : "no") 
+                    << "\n";
+            }
+            else {
+                reply(msg, storage->getSource(id)->end() ? "1" : "0");
+            }
+        }
     }
-
-
 }
 
 void DataManagerComponent::createDataInstance(std::string id, std::string specification, std::string selection)

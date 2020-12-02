@@ -94,7 +94,8 @@ request() {
     local component
     local message 
     component=$1
-    message="$2"
+    shift 
+    message="$*"
     send_message $component REQUEST "$message"
 }
 

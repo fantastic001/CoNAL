@@ -31,7 +31,7 @@ bool DataStorage::create(std::string id, DataDefinition dataDefinition) {
 
 string DataStorage::getString(string id) {
     unique_lock<mutex> lock(storage_mutex);
-    storage[id]->getOne();
+    return storage[id]->getOne();
 }
 
 std::shared_ptr<Source> DataStorage::getSource(string id) {

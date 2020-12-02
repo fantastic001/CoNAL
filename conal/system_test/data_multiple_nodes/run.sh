@@ -22,6 +22,8 @@ echo "create_data \"x\" \"*\" \"DummySource()\"" > $MASTER_FIFO_FILE-input
 sleep 5
 echo "cat log/data_manager.log" > $SLAVE_FIFO_FILE-input 
 echo "request data_manager list" > $SLAVE_FIFO_FILE-input 
+echo "request data_manager get x" > $SLAVE_FIFO_FILE-input 
+echo "request data_manager end x" > $SLAVE_FIFO_FILE-input 
 sleep 1
 kill -9 $(cat $PIDFILE-*)
 sleep 1 
@@ -34,6 +36,8 @@ echo "Log for slave"
 cat $LOG-slave.log 
 
 cat $LOG-slave.log | grep "Created data instance: x" && \
-    cat $LOG-slave.log | grep "x = DummySource()"
+    cat $LOG-slave.log | grep "x = DummySource()" && \
+    cat $LOG-slave.log | grep "x -> TEST" && \
+    cat $LOG-slave.log | grep "x finalized? yes" 
 
 exit $?
