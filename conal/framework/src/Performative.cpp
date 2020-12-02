@@ -13,6 +13,7 @@ std::istream& ::conal::framework::operator>> (std::istream& in, Performative& pe
     if (text == "REJECT") perf = Performative::REJECT;
     if (text == "DESTROY") perf = Performative::DESTROY;
     if (text == "DATA") perf = Performative::DATA;
+    if (text == "REPLY") perf = Performative::REPLY;
     return in; 
 
 }
@@ -27,6 +28,7 @@ std::ostream& ::conal::framework::operator<< (std::ostream& in, const Performati
     if (perf == Performative::REJECT) in << "REJECT";
     if (perf == Performative::DESTROY) in << "DESTROY";
     if (perf == Performative::DATA) in << "DATA";
+    if (perf == Performative::REPLY) in << "REPLY";
     return in; 
 
 }

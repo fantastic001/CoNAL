@@ -11,7 +11,8 @@ namespace conal {
             STOP,
             REJECT,
             DESTROY,
-            DATA
+            DATA,
+            REPLY,
         };
 
         std::istream& operator>> (std::istream& in, Performative& perf);

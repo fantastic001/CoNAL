@@ -12,6 +12,7 @@ namespace conal {
             std::string from_component;
             std::string to_component;
             std::string body;
+            int reply_with = 0;
 
             Message(
                 ::conal::framework::Performative performative,
