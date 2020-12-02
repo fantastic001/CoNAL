@@ -67,6 +67,12 @@ namespace conal {
                */
               virtual std::string dump() =0;
 
+              // Adds data represented in a string to data instance and returns true if data is added
+              virtual bool add(std::string) =0;
+
+              // Retrieves data given key, otherwise empty
+              virtual std::optional<std::string> at(std::string) =0;
+
                virtual ~Source() {
                     
                }

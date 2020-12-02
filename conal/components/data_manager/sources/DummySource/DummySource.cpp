@@ -42,6 +42,13 @@ conal::data_manager::ErrorValue DummySource::deserialize(std::string code) {
 }
 
 
+bool DummySource::add(std::string data) {
+    return false; 
+}
+std::optional<std::string> DummySource::at(std::string key) {
+    return std::optional("TEST");
+}
+
 
 extern "C" Source* createInstance() {
     return new DummySource();

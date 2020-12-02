@@ -45,3 +45,7 @@ std::list<std::string> DataStorage::getAllDataInstances() {
     }
     return result;
 }
+
+std::optional<std::string> DataStorage::getString(std::string id, std::string key) {
+    return storage[id]->at(key);
+}

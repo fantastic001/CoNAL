@@ -92,6 +92,32 @@ void DataManagerComponent::handleMessage(Message msg) {
                 reply(msg, storage->getSource(id)->end() ? "1" : "0");
             }
         }
+        else if (command == "add") {
+            string id; 
+            ss >> id;
+            string data;
+            std::getline(ss, data);
+            while (data[0] == ' ') data.erase(0,1);
+            bool added = storage->getSource(id)->add(data);
+            if (msg.from_component == "console") {
+                cout << (added ? "Done\n" : "Failed\n");
+            }
+            else {
+                reply(msg, added ? "1" : "0");
+            }
+        }
+        else if (command == "at") {
+            string key, id; 
+            ss >> id; 
+            ss >> key; 
+            auto result = storage->getString(id, key);
+            if (msg.from_component == "console") {
+                cout << result.value_or("Not available") << "\n";
+            }
+            else {
+                reply(msg, result.value_or(""));
+            }
+        }
     }
 }
 

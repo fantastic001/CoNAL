@@ -21,6 +21,9 @@ class DummySource : public conal::data_manager::Source {
 
         std::string dump(); 
 
+        bool add(std::string);
+        std::optional<std::string> at(std::string);
+
         virtual ~DummySource() {
             
         }
