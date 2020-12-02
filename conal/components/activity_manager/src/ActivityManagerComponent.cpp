@@ -127,7 +127,7 @@ void ActivityManagerComponent::handleMessage(Message msg) {
                 }
             }
             if (msg.from_component != "console") {
-                this->reply(msg, Performative::REPLY, reply.str());
+                this->reply(msg, reply.str());
             }
         }
         else if (msg.body.substr(0, 4) == "send")

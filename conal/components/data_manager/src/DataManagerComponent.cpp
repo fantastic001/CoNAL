@@ -37,8 +37,12 @@ void DataManagerComponent::handleMessage(Message msg) {
             selection = "";
         }
         else selection = msg.body.substr(hashSepPos+1);
-        dataCreationthread = std::thread(&DataManagerComponent::createDataInstance, this, id, specification, selection);
-        dataCreationthread.detach();
+        createDataInstance(id, specification, selection);
+    }
+    if (msg.performative == Performative::REPLY) {
+        std::string id = msgReplyToIdMapping[msg.reply_with];
+        splitMessages(msg, id);
+        logger->debug("Finalized delivery to clients");
     }
 
 }
@@ -52,10 +56,8 @@ void DataManagerComponent::createDataInstance(std::string id, std::string specif
         logger->debug("Created data instance: " + id);
         if (! selection.empty()) {
             logger->debug("Selection is not empty, so we are finding out hostnames from AM");
-            auto res = sendMessageAndWait("activity_manager", Performative::REQUEST, "list " + selection);
-            logger->debug("Got message: " + res.body);
-            splitMessages(res, id);
-            logger->debug("Finalized delivery to clients");
+            int res = sendReplyableMessage("activity_manager", Performative::REQUEST, "list " + selection);
+            msgReplyToIdMapping[res] = id;
         }
 }
 

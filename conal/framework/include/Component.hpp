@@ -23,15 +23,12 @@ namespace conal {
                 std::thread messageReadingThread;
                 std::default_random_engine rand;
                 std::string name;
-                std::map<int, std::condition_variable> waitingForReply;
-                std::map<int, std::pair<bool, Message>> notServed;
-                std::mutex m;
             
             protected:
                 std::shared_ptr<Logger> logger;
                 void sendMessage(std::string to_component, Performative performative, std::string body);
-                void reply(Message msg, Performative performative, std::string body);
-                Message sendMessageAndWait(std::string to_component, Performative performative, std::string body);
+                void reply(Message msg, std::string body, Performative performative = Performative::REPLY);
+                int sendReplyableMessage(std::string to_component, Performative performative, std::string body);
                 Component();
             public: 
                 // needs to be implemented by component. 
