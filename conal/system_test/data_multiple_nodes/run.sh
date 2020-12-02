@@ -32,6 +32,6 @@ cat $LOG-master.log
 echo "Log for slave"
 cat $LOG-slave.log 
 
-cat $LOG-slave.log | grep "Created data instance: 0 DummySource DummySource()"
+cat $LOG-slave.log | grep "Created data instance: x"
 
 exit $?

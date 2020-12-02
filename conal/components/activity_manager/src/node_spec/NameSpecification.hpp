@@ -17,7 +17,7 @@ namespace conal {
                     }
                     bool valid(std::shared_ptr<::conal::framework::Connection> connection)
                     {
-                        return connection->getProperty("NAME") == name;
+                        return connection->getHostname() == name;
                     }
 
                     std::string dump() {

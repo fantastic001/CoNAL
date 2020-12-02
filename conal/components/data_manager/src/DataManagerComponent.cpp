@@ -77,7 +77,7 @@ void DataManagerComponent::splitMessages(::conal::framework::Message msg, std::s
     for (i=0; i<hostnames.size(); i++) {
         string code = result[i]->serialize();
         logger->debug("Code: " + code);
-        sendMessage("activity_manager", Performative::REQUEST, "send name=" + hostnames[i] + "#DATA " + code);
+        sendMessage("activity_manager", Performative::REQUEST, "send name=" + hostnames[i] + "#DATA " + id + "=" + code + "@");
     }
 }
 

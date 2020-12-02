@@ -30,7 +30,7 @@ std::pair<std::shared_ptr<Source>, std::shared_ptr<Source>> DummySource::split()
 
 
 std::string DummySource::serialize() {
-    return "XXX";
+    return "DummySource()";
 }
 
 conal::data_manager::ErrorValue DummySource::deserialize(std::string code) {

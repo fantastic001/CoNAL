@@ -139,6 +139,7 @@ void ActivityManagerComponent::handleMessage(Message msg) {
             node_spec::Parser p;
             auto selParsed = p.parse(selection.c_str());
             auto connections = connectionManager.select(selParsed);
+            logger->debug("Sending command to clients: " + selParsed->dump());
             for (auto conn : connections) {
                 conn->send(command);
             }
@@ -216,30 +217,6 @@ std::string ActivityManagerComponent::clearDataSpecification(std::string spec) {
     return spec;
 }
 void ActivityManagerComponent::handleMessageFromDataManager(Message msg) {
-    if (msg.performative == Performative::DATA) {
-        stringstream reader(msg.body);
-        int id; 
-        string name; 
-        string specification; 
-        reader >> id >> name; 
-        getline(reader, specification);
-        specification = clearDataSpecification(specification);
-        logger->info("Activity manager got information that data source is created in local");
-        logger->debug("Specification: " + specification);
-        if (dataIdToSourceNameMapping.find(id) != dataIdToSourceNameMapping.end()) {
-            logger->warning("This id is already found, maybe it was id of old data source.");
-        }
-        dataSpecToIdMapping[specification] = id;
-        dataIdToSourceNameMapping[id] = name; 
-        if (!isSlave()) {
-            for (auto conn : dataSpecToConnectionsMapping[specification]) {
-                logger->debug("Requesting data creation from: " + conn->getHostname());
-                conn->send("DATA " + specification);
-            }
-        }
-
-
-    }
 }
 
 void ActivityManagerComponent::handleMessageFromUser(Message msg) {
@@ -280,6 +257,7 @@ bool ActivityManagerComponent::isSlave() const {
 
 void ActivityManagerComponent::handleClientReply(std::shared_ptr<::conal::framework::TCPClient> conn, std::string reply) {
         std::string command; 
+        logger->debug("Got from master: " + reply);
         std::stringstream ss(reply);
         ss >> command;
         if (command == "CODE") {
@@ -306,9 +284,7 @@ void ActivityManagerComponent::handleClientReply(std::shared_ptr<::conal::framew
             sendMessage("code_manager", Performative::START, loaderName + " " + code);
         }
         else if (command == "DATA") {
-            string specification; 
-            getline(ss, specification);
-            specification = clearDataSpecification(specification);
+            string specification = reply.substr(5);
             sendMessage("data_manager", Performative::CREATE, specification);
         }
         else if (command == "HI") {
