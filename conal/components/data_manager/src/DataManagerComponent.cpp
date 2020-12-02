@@ -39,11 +39,39 @@ void DataManagerComponent::handleMessage(Message msg) {
         else selection = msg.body.substr(hashSepPos+1);
         createDataInstance(id, specification, selection);
     }
-    if (msg.performative == Performative::REPLY) {
+    else if (msg.performative == Performative::REPLY) {
         std::string id = msgReplyToIdMapping[msg.reply_with];
         splitMessages(msg, id);
         logger->debug("Finalized delivery to clients");
     }
+    else if (msg.performative == Performative::REQUEST) {
+        stringstream ss(msg.body);
+        string command; 
+        ss >> command;
+        if (command == "list") {
+            auto instances = storage->getAllDataInstances();
+            stringstream resultWriter;
+            for (auto instance : instances) {
+                if (msg.from_component == "console") {
+                    resultWriter << 
+                        instance 
+                        << " = " 
+                        << storage->getSource(instance)->dump() 
+                        << "\n";
+                }
+                else {
+                    resultWriter << instance << " ";
+                }
+            }
+            if (msg.from_component == "console") {
+                std::cout << resultWriter.str();
+            }
+            else {
+                reply(msg, resultWriter.str());
+            }
+        }
+    }
+
 
 }
 

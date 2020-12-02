@@ -9,6 +9,7 @@
 #include <utility>
 #include <mutex>
 #include <sstream>
+#include <list>
 
 
 namespace conal {
@@ -33,6 +34,8 @@ namespace conal {
                     ss >> value;
                     return value; 
                 }
+
+                std::list<std::string> getAllDataInstances();
 
                 std::shared_ptr<Source> getSource(std::string id);
 

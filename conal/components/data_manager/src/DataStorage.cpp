@@ -37,3 +37,11 @@ string DataStorage::getString(string id) {
 std::shared_ptr<Source> DataStorage::getSource(string id) {
     return storage[id];
 }
+
+std::list<std::string> DataStorage::getAllDataInstances() {
+    std::list<std::string> result; 
+    for (auto item : storage) {
+        result.push_back(item.first);
+    }
+    return result;
+}
