@@ -18,7 +18,7 @@ sleep 1
 
 echo -e "#include <iostream>\nint main() {std::cout << \"HELLO\"; return 0; }" > $CONAL_DIR/test.cpp
 
-echo "create_data \"*\" \"DummySource()\"" > $MASTER_FIFO_FILE-input 
+echo "create_data \"x\" \"*\" \"DummySource()\"" > $MASTER_FIFO_FILE-input 
 sleep 5
 echo "cat log/data_manager.log" > $SLAVE_FIFO_FILE-input 
 sleep 1

@@ -10,8 +10,12 @@ DataStorage::DataStorage(std::shared_ptr<Logger> logger) : logger(logger) {
     logger->info("Initialized storage for data");
 }
 
-int DataStorage::create(DataDefinition dataDefinition) {
+bool DataStorage::create(std::string id, DataDefinition dataDefinition) {
     unique_lock<mutex> lock(storage_mutex);
+    if (storage.find(id) != storage.end()) {
+        logger->error("Data source with identifier " + id + " already existing");
+        return false;
+    }
     string name = dataDefinition.getName();
     auto params = dataDefinition.getParams();
     auto optionalParams = dataDefinition.getOptionalParams();
@@ -19,22 +23,17 @@ int DataStorage::create(DataDefinition dataDefinition) {
     auto name_source_pair = sourceManager->findSource(name, params, optionalParams);
     if (name_source_pair.second) {
         logger->debug("SourceManager created data instance");
-        storage.push_back(name_source_pair);
-        return storage.size() - 1;
+        storage[id] = (name_source_pair).second;
+        return true;
     }
-    else return -1;
+    else return false;
 }
 
-string DataStorage::getString(int id) {
+string DataStorage::getString(string id) {
     unique_lock<mutex> lock(storage_mutex);
-    storage[id].second->getOne();
+    storage[id]->getOne();
 }
 
-string DataStorage::getSourceName(int id) {
-    return storage[id].first; 
-}
-
-
-std::shared_ptr<Source> DataStorage::getSource(int id) {
-    return storage[id].second; 
+std::shared_ptr<Source> DataStorage::getSource(string id) {
+    return storage[id];
 }

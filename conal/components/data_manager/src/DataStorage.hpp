@@ -14,18 +14,19 @@
 namespace conal {
     namespace data_manager {
         class DataStorage {
-                std::vector<std::pair<std::string, std::shared_ptr<Source>>> storage; 
+                std::map<std::string, std::shared_ptr<Source>> storage; 
                 std::shared_ptr<SourceManager> sourceManager; 
                 std::mutex storage_mutex;
                 std::shared_ptr<::conal::framework::Logger> logger; 
+
+
             public:
                 DataStorage(std::shared_ptr<::conal::framework::Logger> logger);
-                int create(DataDefinition dataDefinition); 
+                bool create(std::string id, DataDefinition dataDefinition); 
+                std::string getString(std::string id);
 
-                std::string getString(int id);
-                
                 template<typename ValueType> 
-                ValueType getValue(int id) {
+                ValueType getValue(std::string id) {
                     ValueType value; 
                     std::string valueStr = getString(id);
                     std::stringstream ss(valueStr);
@@ -33,8 +34,7 @@ namespace conal {
                     return value; 
                 }
 
-                std::string getSourceName(int id);
-                std::shared_ptr<Source> getSource(int id);
+                std::shared_ptr<Source> getSource(std::string id);
 
 
         };

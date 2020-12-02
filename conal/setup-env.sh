@@ -73,7 +73,7 @@ send_message() {
     component=$1
     performative=$2 
     message="$3"
-    echo "$performative console $component $message" > $CONAL_TEMP_DIR/comm/$component/messages
+    echo "0 $performative console $component $message" > $CONAL_TEMP_DIR/comm/$component/messages
 }
 
 start_task() {
@@ -81,11 +81,13 @@ start_task() {
 }
 
 create_data() {
+    local ___id
     local selection
     local specification 
-    selection="$1"
-    specification="$2"
-    send_message activity_manager DATA "$specification|$selection"
+    ___id=$1
+    selection="$2"
+    specification="$3"
+    send_message data_manager CREATE "$___id=$specification@$selection"
 }
 
 request() {

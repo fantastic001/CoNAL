@@ -100,7 +100,51 @@ void ActivityManagerComponent::runServer() {
 
 void ActivityManagerComponent::handleMessage(Message msg) {
     logger->debug("Got message: " + msg.body + " from " + msg.from_component);
-    if (msg.from_component == "code_manager") handleMessageFromCodeManager(msg);
+    if (msg.performative == Performative::REQUEST) {
+        if (msg.body.substr(0, 4) == "list") {
+            auto selection = msg.body.substr(5);
+            node_spec::Parser p; 
+            auto specParsed = p.parse(selection.c_str());
+            logger->info("Listing all connections");
+            connectionManager.removeClosed();
+            logger->debug("Removed all closed connections");
+            auto connections = connectionManager.select(specParsed);
+            stringstream reply;
+            int i = 1;
+            for (auto iter = connections.begin(); iter != connections.end(); iter++) {
+                if (msg.from_component == "console") {
+                    std::cout 
+                        << "Client " 
+                        << i << ": "
+                        << (*iter)->getHostname() 
+                        << " NAME=" << (*iter)->getProperty("NAME")
+                        << " ARCH=" << (*iter)->getProperty("ARCH")
+                        << std::endl;
+                    i++;
+                }
+                else {
+                    reply << (*iter)->getHostname() << " ";
+                }
+            }
+            if (msg.from_component != "console") {
+                this->reply(msg, Performative::REPLY, reply.str());
+            }
+        }
+        else if (msg.body.substr(0, 4) == "send")
+        {
+            auto rest = msg.body.substr(5); // "send ____________..."
+            int separatorIndex = rest.find_first_of('#');
+            auto selection = rest.substr(0, separatorIndex);
+            auto command = rest.substr(separatorIndex+1);
+            node_spec::Parser p;
+            auto selParsed = p.parse(selection.c_str());
+            auto connections = connectionManager.select(selParsed);
+            for (auto conn : connections) {
+                conn->send(command);
+            }
+        } 
+    }
+    else if (msg.from_component == "code_manager") handleMessageFromCodeManager(msg);
     else if (msg.from_component == "data_manager") handleMessageFromDataManager(msg);
     else handleMessageFromUser(msg);
 }
@@ -199,39 +243,7 @@ void ActivityManagerComponent::handleMessageFromDataManager(Message msg) {
 }
 
 void ActivityManagerComponent::handleMessageFromUser(Message msg) {
-    if (msg.performative == Performative::REQUEST) {
-        if (msg.body == "list") {
-            logger->info("Listing all connections");
-            connectionManager.removeClosed();
-            logger->debug("Removed all closed connections");
-            int i = 1;
-            auto connections = connectionManager.getConnections();
-            for (auto iter = connections.begin(); iter != connections.end(); iter++) {
-                std::cout 
-                    << "Client " 
-                    << i << ": "
-                    << (*iter)->getHostname() 
-                    << " NAME=" << (*iter)->getProperty("NAME")
-                    << " ARCH=" << (*iter)->getProperty("ARCH")
-                    << std::endl;
-                i++;
-            }
-        }
-        else if (msg.body.substr(0, 4) == "send")
-        {
-            auto rest = msg.body.substr(5); // "send ____________..."
-            int separatorIndex = rest.find_first_of('#');
-            auto selection = rest.substr(0, separatorIndex);
-            auto command = rest.substr(separatorIndex+1);
-            node_spec::Parser p;
-            auto selParsed = p.parse(selection.c_str());
-            auto connections = connectionManager.select(selParsed);
-            for (auto conn : connections) {
-                conn->send(command);
-            }
-        } 
-    }
-    else if (msg.performative == Performative::CREATE) {
+   if (msg.performative == Performative::CREATE) {
         std::unique_lock<std::mutex> lock(task_mutex);
         std::string body = msg.body;
         std::stringstream reader(msg.body);
@@ -260,19 +272,6 @@ void ActivityManagerComponent::handleMessageFromUser(Message msg) {
                 Performative::REQUEST, 
                 ss.str() + " " + body);
         }
-    }
-    else if (msg.performative == Performative::DATA) {
-        int sepIndex = msg.body.find_first_of('|');
-        string specification = msg.body.substr(0, sepIndex);
-        string selection = msg.body.substr(sepIndex + 1, msg.body.size());
-        logger->debug("Specification: " + specification);
-        logger->debug("Selection: " + selection);
-        node_spec::Parser p;
-        auto parsedSpecification = p.parse(selection.c_str());
-        logger->debug("Selection parsed: " + parsedSpecification->dump());
-        dataSpecToConnectionsMapping[specification] 
-            = connectionManager.select(parsedSpecification);
-        sendMessage("data_manager", Performative::CREATE, specification);
     }
 }
 bool ActivityManagerComponent::isSlave() const {
@@ -309,6 +308,7 @@ void ActivityManagerComponent::handleClientReply(std::shared_ptr<::conal::framew
         else if (command == "DATA") {
             string specification; 
             getline(ss, specification);
+            specification = clearDataSpecification(specification);
             sendMessage("data_manager", Performative::CREATE, specification);
         }
         else if (command == "HI") {

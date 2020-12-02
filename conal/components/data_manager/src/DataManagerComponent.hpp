@@ -12,15 +12,19 @@ namespace conal {
         class DataManagerComponent : public conal::framework::Component {
                 std::shared_ptr<DataStorage> storage; 
                 
-                std::map<int, std::list<std::string>> idsToHostnamesMapping;
-
 
                 std::vector<std::shared_ptr<Source>> split(int size, std::shared_ptr<Source> source);
+                void splitMessages(::conal::framework::Message msg, std::string id);
+
+                std::thread dataCreationthread;
             public: 
                 explicit DataManagerComponent();
                 virtual void start();
                 virtual void stop();
                 virtual void handleMessage(::conal::framework::Message msg);
+
+                void createDataInstance(std::string id, std::string specification, std::string selection);
+
         };
     }
 }

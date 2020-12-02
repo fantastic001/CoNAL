@@ -22,48 +22,62 @@ void DataManagerComponent::stop() {
 void DataManagerComponent::handleMessage(Message msg) {
     logger->debug("Got message: " + msg.body);
     if (msg.performative == Performative::CREATE) {
-        stringstream bodyReader(msg.body);
-        string specification; 
-        std::getline(bodyReader, specification);
-        stringstream reply; 
-        int id = storage->create(DataDefinition(specification));
-        if (id == -1) {
+        // Format <DataIdentifier>=<Specification>@<Selection>
+        auto equalsSepPos = msg.body.find_first_of('=');
+        auto hashSepPos = msg.body.find_first_of('@');
+        if (hashSepPos - equalsSepPos < 1) {
+            logger->error("Wrong format for message to data manager.");
+            return;
+        }
+        string id = msg.body.substr(0, equalsSepPos);
+        string specification = msg.body.substr(equalsSepPos+1, hashSepPos-equalsSepPos);
+        string selection;
+        if (hashSepPos >= msg.body.size() -1) {
+            logger->debug("This data instance won't be distributed and split");
+            selection = "";
+        }
+        else selection = msg.body.substr(hashSepPos+1);
+        dataCreationthread = std::thread(&DataManagerComponent::createDataInstance, this, id, specification, selection);
+        dataCreationthread.detach();
+    }
+
+}
+
+void DataManagerComponent::createDataInstance(std::string id, std::string specification, std::string selection)
+{
+        if(! storage->create(id, DataDefinition(specification))) {
             logger->error("Couldn't create data instance");
             return;
         }
-        reply << id << " " << storage->getSourceName(id) << " " << specification;
-        logger->debug("Created data instance: " + reply.str());
-        sendMessage(msg.from_component, Performative::DATA, reply.str()); 
-    }
-    else if (msg.performative == Performative::REQUEST) {
-        stringstream reader(msg.body);
-        string hostname;
-        int id; 
-        reader >> id;
+        logger->debug("Created data instance: " + id);
+        if (! selection.empty()) {
+            logger->debug("Selection is not empty, so we are finding out hostnames from AM");
+            auto res = sendMessageAndWait("activity_manager", Performative::REQUEST, "list " + selection);
+            logger->debug("Got message: " + res.body);
+            splitMessages(res, id);
+            logger->debug("Finalized delivery to clients");
+        }
+}
+
+
+void DataManagerComponent::splitMessages(::conal::framework::Message msg, std::string id)
+{
+    stringstream reader(msg.body);
+    std::vector<std::string> hostnames;
+    while (reader.good()) {
+        string hostname; 
         reader >> hostname;
-        if (idsToHostnamesMapping.find(id) != idsToHostnamesMapping.end()) {
-            idsToHostnamesMapping[id].push_back(hostname);
-        }
-        else {
-            idsToHostnamesMapping[id] = list<string>();
-            idsToHostnamesMapping[id].push_back(hostname);
-        }
+        if (! hostname.empty()) hostnames.push_back(hostname);
     }
-    else if (msg.performative == Performative::START) {
-        stringstream reader(msg.body);
-        int id; 
-        reader >> id; 
-        auto hostnames = idsToHostnamesMapping[id];
-        auto s = (storage->getSource(id));
-        auto result = split(hostnames.size(), s);
-        int i = 0; 
-        for (auto hostname : hostnames) {
-            string code = result[i]->serialize();
-            string name = storage->getSourceName(id);
-            stringstream writer; 
-            writer << hostname << " " << id << " " << name << " " << code;
-            sendMessage(msg.from_component, Performative::START, writer.str());
-        }
+    auto s = (storage->getSource(id));
+    logger->debug("Splitting data");
+    auto result = split(hostnames.size(), s);
+    int i = 0; 
+    logger->debug("Sending data to clients");
+    for (i=0; i<hostnames.size(); i++) {
+        string code = result[i]->serialize();
+        logger->debug("Code: " + code);
+        sendMessage("activity_manager", Performative::REQUEST, "send name=" + hostnames[i] + "#DATA " + code);
     }
 }
 
