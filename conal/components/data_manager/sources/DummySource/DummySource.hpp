@@ -19,6 +19,8 @@ class DummySource : public conal::data_manager::Source {
 
         conal::data_manager::ErrorValue deserialize(std::string code);
 
+        std::string dump(); 
+
         virtual ~DummySource() {
             
         }

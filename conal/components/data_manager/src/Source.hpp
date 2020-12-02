@@ -60,10 +60,16 @@ namespace conal {
                when source is transfered over network. 
                */
                virtual ErrorValue deserialize(std::string code) =0;
-                
-                virtual ~Source() {
+
+               /*
+               This function should output parsable data source representation in data 
+               definition language
+               */
+              virtual std::string dump() =0;
+
+               virtual ~Source() {
                     
-                }
+               }
         };
     }
 }

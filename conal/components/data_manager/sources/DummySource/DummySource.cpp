@@ -30,6 +30,10 @@ std::pair<std::shared_ptr<Source>, std::shared_ptr<Source>> DummySource::split()
 
 
 std::string DummySource::serialize() {
+    return "XXX";
+}
+
+std::string DummySource::dump() {
     return "DummySource()";
 }
 
