@@ -8,10 +8,12 @@
 #include <map>
 #include <mutex>
 
+
 namespace conal {
     namespace framework {
         class ComponentManager;
         
+
         /*! Represents specific component in CoNAL environment.
         */
         class Component {
@@ -23,7 +25,7 @@ namespace conal {
                 std::string name;
                 std::map<int, std::condition_variable> waitingForReply;
                 std::map<int, std::pair<bool, Message>> notServed;
-                std::mutex m; 
+                std::mutex m;
             
             protected:
                 std::shared_ptr<Logger> logger;

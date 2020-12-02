@@ -47,6 +47,7 @@ Message Component::sendMessageAndWait(std::string to_component, Performative per
         logger->debug("Got waited message");
         auto res = notServed[mess.reply_with].second;
         logger->debug(res.body);
+        waitingForReply.erase(mess.reply_with);
         notServed.erase(mess.reply_with);
         return res;
 }
@@ -59,7 +60,9 @@ void Component::deliver(Message msg) {
         std::unique_lock<std::mutex> lock(m);
         if (waitingForReply.find(msg.reply_with) != waitingForReply.end()) {
             notServed[msg.reply_with] = std::make_pair(true, msg);
+            lock.unlock();
             waitingForReply[msg.reply_with].notify_all();
+            return;
         }
         else {
             handleMessage(msg);
