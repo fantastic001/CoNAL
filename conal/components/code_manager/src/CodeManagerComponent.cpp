@@ -19,7 +19,26 @@ void CodeManagerComponent::stop() {
 
 void CodeManagerComponent::handleMessage(Message msg) {
     logger->debug("Got message: " + msg.body);
-    if (msg.performative == Performative::REQUEST) {
+    if (msg.from_component == "data_manager" && msg.performative == Performative::REPLY) {
+        int num = msg.reply_with;
+        if (replyGet.find(num) != replyGet.end()) replyGet[num].set_value(msg.body);
+        if (replyAt.find(num) != replyAt.end()) replyAt[num].set_value(msg.body);
+        if (replyGet.find(num) != replyGet.end()) replyGet[num].set_value(msg.body);
+        if (replyGet.find(num) != replyGet.end()) replyGet[num].set_value(msg.body);
+
+    }
+    else if (msg.performative == Performative::REQUEST && msg.from_component == "data_manager")
+    {
+        ::std::stringstream ss(msg.body);
+        std::string command; 
+        ss >> command;
+        if (command == "binding") {
+            std::string id; 
+            ss >> id;
+            dataInstances.push_back(DataBinding(id, this));
+        }
+    }
+    else if (msg.performative == Performative::REQUEST) {
         std::stringstream ss(msg.body);
         std::string hostname;
         int id; 
@@ -79,10 +98,43 @@ void CodeManagerComponent::handleMessage(Message msg) {
         std::stringstream ss(msg.body);
         ss >> loaderName;
         ss >> code;
-        loaderManager->start(loaderName, code);
+        loaderManager->start(loaderName, code, dataInstances, dataInstances);
     }
 }
 
 EnvParams CodeManagerComponent::getEnvParams() {
     return EnvParams();
+}
+
+
+
+std::string CodeManagerComponent::sendGetRequest(std::string identifier) {
+    int replyNum = sendReplyableMessage("data_message", Performative::REQUEST, 
+        "get " + identifier
+    );
+    replyGet[replyNum] = std::promise<std::string>();
+    return replyGet[replyNum].get_future().get();
+}
+
+std::string CodeManagerComponent::sendAtRequest(std::string identifier, std::string key) {
+    int replyNum = sendReplyableMessage("data_message", Performative::REQUEST, 
+        "at " + identifier + " " + key
+    );
+    replyAt[replyNum] = std::promise<std::string>();
+    return replyAt[replyNum].get_future().get();
+}
+bool CodeManagerComponent::sendEndRequest(std::string identifier) {
+    int replyNum = sendReplyableMessage("data_message", Performative::REQUEST, 
+        "end " + identifier
+    );
+    replyEnd[replyNum] = std::promise<bool>();
+    return replyEnd[replyNum].get_future().get();
+    
+}
+bool CodeManagerComponent::sendAddRequest(std::string identifier, std::string data) {
+    int replyNum = sendReplyableMessage("data_message", Performative::REQUEST, 
+        "add " + identifier + " " + data
+    );
+    replyAdd[replyNum] = std::promise<bool>();
+    return replyAdd[replyNum].get_future().get();
 }

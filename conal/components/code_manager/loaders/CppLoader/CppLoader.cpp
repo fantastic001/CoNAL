@@ -10,6 +10,8 @@
 #include <sstream>
 #include <chrono>
 
+using namespace conal::code_manager;
+
 std::string get_random_executable_name() {
     const auto p1 = std::chrono::system_clock::now();
     std::stringstream ss; 
@@ -56,7 +58,7 @@ std::string CppLoader::load(std::string path, std::vector<std::string> params, E
     auto code = encode(output);
     return code; 
 }
-void CppLoader::run(std::string code) {
+void CppLoader::run(std::string code, std::vector<DataBinding> in, std::vector<DataBinding> out) {
     auto execName = get_random_executable_name();
     std::ofstream executableOutput(execName, std::ofstream::out | std::ofstream::binary);
     auto result = decode(code);

@@ -127,6 +127,7 @@ void DataManagerComponent::createDataInstance(std::string id, std::string specif
             logger->error("Couldn't create data instance");
             return;
         }
+        sendMessage("code_manager", Performative::REQUEST, "binding " + id);
         logger->debug("Created data instance: " + id);
         if (! selection.empty()) {
             logger->debug("Selection is not empty, so we are finding out hostnames from AM");
