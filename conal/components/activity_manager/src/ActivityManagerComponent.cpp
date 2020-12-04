@@ -17,25 +17,8 @@ void ActivityManagerComponent::start() {
     logger->info("Starting activity manager component");
     masterHostname = std::string(getenv("CONAL_MASTER_HOSTNAME"));
     if (isSlave()) {
-        logger->info("Connecting to server...");
-        clientPtr = std::make_shared<TCPClient>(masterHostname, "6969");
-        logger->info("Client connected");
-        clientPtr->send("HELLO");
-        logger->debug("Data successfully written to pipe");
-        std::string reply = clientPtr->readLine();
-        if (reply == "HELLO2") {
-            logger->info("Handshake done!");
-            logger->debug("Sending all parameters for client");
-            clientPtr->send(std::string("SET ARCH ") + std::string(getenv("CONAL_HOST_PLATFORM")));
-            clientPtr->send(std::string("SET NAME ") + std::string(getenv("CONAL_CLIENT_NAME")));
-        }
-        else {
-            logger->error("Did not get reply to handshake");
-        }
-        do {
-            reply = clientPtr->readLine();
-            handleClientReply(clientPtr, reply);
-        } while (reply != "END");
+        clientThread = std::thread(&ActivityManagerComponent::runClient, this);
+        clientThread.detach();
     }
     else {
         logger->info("Running in master mode");
@@ -47,7 +30,7 @@ void ActivityManagerComponent::start() {
 }
 
 void ActivityManagerComponent::stop() {
-
+    
 }
 
 void ActivityManagerComponent::runServer() {
@@ -55,7 +38,7 @@ void ActivityManagerComponent::runServer() {
         logger->info("Adding connection " + conn->getHostname());
         manager.addConnection(conn);
     },
-    [logger = logger] (std::shared_ptr<Connection> conn, std::string message) {
+    [this, logger = logger] (std::shared_ptr<Connection> conn, std::string message) {
         logger->debug("Received message: " + message);
         std::stringstream ss(message); 
         std::string command; 
@@ -94,14 +77,57 @@ void ActivityManagerComponent::runServer() {
         else if (command == "HI") {
             logger->debug("Got HI from " + conn->getHostname());
         }
+        else if (command == "COMPONENT_REPLY") {
+            logger->debug("Parsing message");
+            Message msg; 
+            ss >> msg;
+            stringstream resultWriter;
+            resultWriter << msg; 
+            logger->debug("Message parsed: " + resultWriter.str());
+            sendFromClient(conn->getHostname(), msg);
+        }
         
     });
 }
 
+void ActivityManagerComponent::runClient() {
+    logger->info("Connecting to server...");
+    clientPtr = std::make_shared<TCPClient>(masterHostname, "6969");
+    logger->info("Client connected");
+    clientPtr->send("HELLO");
+    logger->debug("Data successfully written to pipe");
+    std::string reply = clientPtr->readLine();
+    if (reply == "HELLO2") {
+        logger->info("Handshake done!");
+        logger->debug("Sending all parameters for client");
+        clientPtr->send(std::string("SET ARCH ") + std::string(getenv("CONAL_HOST_PLATFORM")));
+        clientPtr->send(std::string("SET NAME ") + std::string(getenv("CONAL_CLIENT_NAME")));
+    }
+    else {
+        logger->error("Did not get reply to handshake");
+    }
+    do {
+        reply = clientPtr->readLine();
+        handleClientReply(clientPtr, reply);
+    } while (reply != "END");
+}
+
 void ActivityManagerComponent::handleMessage(Message msg) {
     logger->debug("Got message: " + msg.body + " from " + msg.from_component);
+    if (msg.performative == Performative::REPLY 
+        && waitingFromComponent.find(msg.reply_with) != waitingFromComponent.end()
+    ) {
+        // change reply_with with number sent from server
+        logger->debug("Got reply from local component, sending back to master");
+        logger->debug("Sending to needed connection");
+        waitingFromComponent[msg.reply_with].set_value(msg);
+        logger->debug("Future set");
+    } 
     if (msg.performative == Performative::REQUEST) {
-        if (msg.body.substr(0, 4) == "list") {
+        string command; 
+        stringstream ss(msg.body);
+        ss >> command;
+        if (command == "list") {
             auto selection = msg.body.substr(5);
             node_spec::Parser p; 
             auto specParsed = p.parse(selection.c_str());
@@ -130,7 +156,7 @@ void ActivityManagerComponent::handleMessage(Message msg) {
                 this->reply(msg, reply.str());
             }
         }
-        else if (msg.body.substr(0, 4) == "send")
+        else if (command == "send")
         {
             auto rest = msg.body.substr(5); // "send ____________..."
             int separatorIndex = rest.find_first_of('#');
@@ -143,7 +169,24 @@ void ActivityManagerComponent::handleMessage(Message msg) {
             for (auto conn : connections) {
                 conn->send(command);
             }
-        } 
+        }
+        else if (command == "send_message") {
+            string selection;
+            Message msg_to_be_sent; 
+            ss >> selection;
+            ss >> msg_to_be_sent;
+            msg_to_be_sent.reply_with = msg.reply_with;
+            stringstream msgWriter;
+            msgWriter << " " << msg_to_be_sent;
+            node_spec::Parser parser; 
+            auto selParsed = parser.parse(selection.c_str());
+            waitingFromClients[msg_to_be_sent.reply_with] = msg_to_be_sent;
+            for (auto conn : connectionManager.select(selParsed)) {
+                logger->debug("Sending message to " + conn->getHostname() + ": " + msgWriter.str());
+                conn->send("COMPONENT " + msgWriter.str());
+            }
+
+        }
     }
     else if (msg.from_component == "code_manager") handleMessageFromCodeManager(msg);
     else if (msg.from_component == "data_manager") handleMessageFromDataManager(msg);
@@ -291,5 +334,42 @@ void ActivityManagerComponent::handleClientReply(std::shared_ptr<::conal::framew
             logger->debug("Got HI from master!");
             conn->send("HI");
         }
+        else if (command == "COMPONENT") {
+            logger->debug("Parsing message...");
+            Message message;
+            ss >> message;
+            logger->debug("Sending message from server to local component " + message.to_component);
 
+            
+            std::promise<Message> my_promise;
+            auto my_future = my_promise.get_future();
+
+            int reply_with = sendReplyableMessage(
+                message.to_component, 
+                message.performative, 
+                message.body
+            );
+            waitingFromComponent[reply_with] = std::move(my_promise);
+            logger->debug("Waiting for future");
+            auto reply = my_future.get();
+            reply.reply_with = message.reply_with;
+            logger->debug("Future getting unblocked");
+            stringstream replyWriter;
+            replyWriter << reply;
+            conn->send("COMPONENT_REPLY " + replyWriter.str());
+            logger->debug("sent!");
+            waitingFromComponent.erase(reply_with);
+        }
+
+}
+
+void ActivityManagerComponent::sendFromClient(string hostname, Message message) {
+    if (waitingFromClients.find(message.reply_with) != waitingFromClients.end()) {
+        logger->debug("Found waiting delivery");
+        if (waitingFromClients[message.reply_with].from_component == "console") {
+            std::cout << "From " << hostname << ": " << message.body << "\n";
+        }
+        else reply(waitingFromClients[message.reply_with], 
+        hostname + " " + message.body, message.performative);
+    }
 }

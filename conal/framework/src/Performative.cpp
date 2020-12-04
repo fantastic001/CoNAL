@@ -1,5 +1,5 @@
 #include "Performative.hpp"
-
+#include <sstream>
 using namespace ::conal::framework;
 
 std::istream& ::conal::framework::operator>> (std::istream& in, Performative& perf) {
@@ -31,4 +31,10 @@ std::ostream& ::conal::framework::operator<< (std::ostream& in, const Performati
     if (perf == Performative::REPLY) in << "REPLY";
     return in; 
 
+}
+
+std::string performative_to_string(Performative p) {
+    std::stringstream ss; 
+    ss << p; 
+    return ss.str();
 }

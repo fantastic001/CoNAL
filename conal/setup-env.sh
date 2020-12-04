@@ -73,7 +73,28 @@ send_message() {
     component=$1
     performative=$2 
     message="$3"
-    echo "0 $performative console $component $message" > $CONAL_TEMP_DIR/comm/$component/messages
+    echo "$RANDOM $performative console $component $message" > $CONAL_TEMP_DIR/comm/$component/messages
+}
+
+client_send_message() {
+    local selection 
+    local performative 
+    local component 
+    local message
+    selection=$1
+    performative=$2 
+    component=$3
+    message="$4"
+    request "activity_manager" send_message "$selection" "$RANDOM $performative console $component $message"
+}
+
+client_request() {
+    local selection 
+    local component
+    selection="$1"
+    component=$2
+    shift 2
+    client_send_message "$selection" REQUEST $component "$*"
 }
 
 start_task() {

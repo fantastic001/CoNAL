@@ -29,5 +29,6 @@ namespace conal {
             }
         };
         std::ostream& operator<<(std::ostream& out, const conal::framework::Message& message);
+        std::istream& operator>>(std::istream& ss,conal::framework::Message& message);
     }
 }

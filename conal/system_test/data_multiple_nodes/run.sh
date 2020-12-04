@@ -25,6 +25,8 @@ echo "request data_manager list" > $SLAVE_FIFO_FILE-input
 echo "request data_manager get x" > $SLAVE_FIFO_FILE-input 
 echo "request data_manager end x" > $SLAVE_FIFO_FILE-input 
 sleep 1
+echo "client_request \"*\" data_manager list" > $MASTER_FIFO_FILE-input
+sleep 1
 kill -9 $(cat $PIDFILE-*)
 sleep 1 
 rm -rf $SLAVE_FIFO_FILE-* $MASTER_FIFO_FILE-* $PIDFILE-*
@@ -38,6 +40,7 @@ cat $LOG-slave.log
 cat $LOG-slave.log | grep "Created data instance: x" && \
     cat $LOG-slave.log | grep "x = DummySource()" && \
     cat $LOG-slave.log | grep "x -> TEST" && \
-    cat $LOG-slave.log | grep "x finalized? yes" 
+    cat $LOG-slave.log | grep "x finalized? yes" && \
+    cat $LOG-master.log | grep "From 172.17.0.3: x"
 
 exit $?

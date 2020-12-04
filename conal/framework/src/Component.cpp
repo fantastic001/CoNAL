@@ -38,6 +38,7 @@ void Component::deliver(Message msg) {
 }
 
 void Component::reply(Message msg, std::string body, Performative performative) {
+    logger->debug("Sending reply to " + msg.from_component);
     Message mess(performative, this->name, msg.from_component, body);
     mess.reply_with = msg.reply_with;
     auto os = std::fstream(
