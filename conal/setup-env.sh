@@ -33,6 +33,17 @@ component_autostop() {
 
 }
 
+get_component_pid() {
+    local component
+    local component_state_dir
+    component=$1
+    component_state_dir=$CONAL_TEMP_DIR/state/$component
+    pidfile=$component_state_dir/$component.pid
+    if [ -f $pidfile ]; then 
+        cat $pidfile
+    fi
+}
+
 start_component() {
     local component
     local component_msg_fifo
@@ -64,6 +75,11 @@ stop_component() {
     rm $component_msg_fifo
     kill $(cat $component_state_dir/$component.pid)
     rm -rf $component_state_dir/$component.pid
+}
+
+start_tool() {
+    start_component $1 
+    wait $(get_component_pid $1)
 }
 
 send_message() {
