@@ -265,32 +265,37 @@ void ActivityManagerComponent::handleMessageFromDataManager(Message msg) {
 void ActivityManagerComponent::handleMessageFromUser(Message msg) {
    if (msg.performative == Performative::CREATE) {
         std::unique_lock<std::mutex> lock(task_mutex);
-        std::string body = msg.body;
+        std::string selection; 
         std::stringstream reader(msg.body);
+        stringstream codeManagerBodyWriter;
+        reader >> selection;
         std::string path; 
         std::vector<std::string> params;
         reader >> path;
+        codeManagerBodyWriter << path;
         logger->info("Requested to run program: " + path);
         while (reader.good()) {
             std::string param; 
             reader >> param;
+            codeManagerBodyWriter << " " << param;
             params.push_back(param);
         }
         tasks.push_back(Task(path, params));
         auto& task = tasks.back();
         task.setState(TaskState::PREPARING);
         auto id = tasks.size()-1;
-        for (auto connection : connectionManager.getConnections()) {
+        for (auto connection : connectionManager.select(node_spec::Parser().parse(selection.c_str()))) {
             std::stringstream ss;
             ss << id << " ";
             ss << connection->getHostname() << " ";
-            ss << "ARCH=" << connection->getProperty("ARCH");
+            ss << "ARCH=" << connection->getProperty("ARCH") << " ";
+            ss << codeManagerBodyWriter.str();
             task.addConnection(connection);
             logger->info("Sending parameters for code manager for task " + ss.str());
             sendMessage(
                 "code_manager", 
                 Performative::REQUEST, 
-                ss.str() + " " + body);
+                ss.str());
         }
     }
 }

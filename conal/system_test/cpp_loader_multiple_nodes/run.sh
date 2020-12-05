@@ -18,13 +18,13 @@ sleep 1
 
 echo -e "#include <iostream>\nint main() {std::cout << \"HELLO\"; return 0; }" > $CONAL_DIR/test.cpp
 
-echo "start_task test.cpp" > $MASTER_FIFO_FILE-input 
+echo "start_task \"*\" test.cpp" > $MASTER_FIFO_FILE-input 
 sleep 5
-echo "start_task TEST" > $MASTER_FIFO_FILE-input 
+echo "start_task \"*\" TEST" > $MASTER_FIFO_FILE-input 
 sleep 1
 echo "create_data test \"*\" \"DummySource()\"" >> $MASTER_FIFO_FILE-input
-echo "start_task TEST" > $MASTER_FIFO_FILE-input 
-echo "start_task TEST" > $MASTER_FIFO_FILE-input 
+echo "start_task \"*\" TEST" > $MASTER_FIFO_FILE-input 
+echo "start_task \"*\" TEST" > $MASTER_FIFO_FILE-input 
 sleep 10
 kill -9 $(cat $PIDFILE-*)
 sleep 1 
