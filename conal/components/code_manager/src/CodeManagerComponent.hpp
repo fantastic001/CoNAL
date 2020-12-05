@@ -43,7 +43,9 @@ namespace conal {
                         request + " " + identifier + (!key.empty() ? " " + key : "")
                     );
                     replyMap[replyNum] = std::move(my_promise);
-                    return my_future.get();
+                    auto result = my_future.get();
+                    replyMap.erase(replyNum);
+                    return result;
                 }
 
             public: 
