@@ -60,6 +60,11 @@ target_compile_features(ConalFramework PUBLIC cxx_std_17)
 target_link_libraries(ConalFramework PUBLIC Threads::Threads)
 
 install(TARGETS ConalFramework DESTINATION lib/)
+install(TARGETS ConalFramework DESTINATION sdk/lib/)
+install(DIRECTORY include/
+    DESTINATION sdk/include/ 
+    FILES_MATCHING PATTERN "*.hpp"
+)
 
 option(FRAMEWORK_TESTS "Build the tests" ON)
 if(FRAMEWORK_TESTS)
