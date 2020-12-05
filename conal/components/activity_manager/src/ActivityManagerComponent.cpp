@@ -308,7 +308,10 @@ void ActivityManagerComponent::handleClientReply(std::shared_ptr<::conal::framew
         logger->debug("Got from master: " + reply);
         std::stringstream ss(reply);
         ss >> command;
-        if (command == "CODE") {
+        if (command == "ping") {
+            conn->send("pong");
+        }
+        else if (command == "CODE") {
             int id; 
             std::stringstream idWriter;
             std::string code; 

@@ -7,6 +7,7 @@ namespace conal {
                 
         }
         void Connection::send(std::string data) {
+            std::unique_lock<std::mutex> lock(send_mutex);
             boost::asio::streambuf buf;
             std::ostream os(&buf);
             os << data;

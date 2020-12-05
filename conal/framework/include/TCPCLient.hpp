@@ -14,6 +14,8 @@ namespace conal {
                 boost::asio::ip::tcp::resolver resolver;
                 std::shared_ptr<boost::asio::ip::tcp::socket> socketPtr; 
 
+                std::mutex read_mutex; 
+
 
             public:
                 /*

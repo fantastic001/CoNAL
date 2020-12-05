@@ -10,6 +10,8 @@ namespace conal {
         */
         class Connection {
             friend class TCPServer;
+            std::mutex send_mutex;
+            std::mutex read_mutex;
             boost::asio::ip::tcp::socket socket;
             std::map<std::string, std::string> properties; 
 

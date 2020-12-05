@@ -20,6 +20,7 @@ namespace conal {
         }
 
         std::string TCPClient::readLine()  {
+            std::unique_lock<std::mutex> lock(read_mutex);
             auto buffer = std::make_shared<boost::asio::streambuf>();
             auto n = boost::asio::read_until(*socketPtr, *buffer, "\n");
             std::string message;
