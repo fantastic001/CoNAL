@@ -11,7 +11,8 @@ using EnvParams = std::map<std::string, std::string>;
 
 namespace conal {
     namespace data_manager {
-        using ErrorValue = std::optional<std::string>;
+        class Source;
+        using SourceCopy = std::optional<std::shared_ptr<Source>>;
         class Source {
             public:
                 /*
@@ -29,7 +30,7 @@ namespace conal {
                 This function returns Optional which is empty if there is no error and with 
                 string value if is present, where string value describes error.
                 */
-                virtual ErrorValue init(std::vector<std::string> params, std::map<std::string, std::string> optional_params) =0;
+                virtual SourceCopy init(std::vector<std::string> params, std::map<std::string, std::string> optional_params) =0;
 
                 /*
                 This function fetches one element of data source givn parameters from init.
@@ -59,7 +60,7 @@ namespace conal {
                This function is called instead of init to initialize source with parameters
                when source is transfered over network. 
                */
-               virtual ErrorValue deserialize(std::string code) =0;
+               virtual SourceCopy deserialize(std::string code) =0;
 
                /*
                This function should output parsable data source representation in data 

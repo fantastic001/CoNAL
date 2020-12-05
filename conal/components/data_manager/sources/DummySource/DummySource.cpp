@@ -4,9 +4,11 @@
 
 using namespace conal::data_manager;
 
-ErrorValue DummySource::init(std::vector<std::string> params, std::map<std::string, std::string> optional_params) {
+SourceCopy DummySource::init(std::vector<std::string> params, std::map<std::string, std::string> optional_params) {
+    auto instance = std::make_shared<DummySource>();
+    instance->finished = false; 
     finished = false;
-    return ErrorValue();
+    return SourceCopy(instance);
 }
 
 
@@ -37,8 +39,8 @@ std::string DummySource::dump() {
     return "DummySource()";
 }
 
-conal::data_manager::ErrorValue DummySource::deserialize(std::string code) {
-    return ErrorValue();
+conal::data_manager::SourceCopy DummySource::deserialize(std::string code) {
+    return SourceCopy(std::make_shared<DummySource>());
 }
 
 

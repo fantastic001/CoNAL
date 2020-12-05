@@ -36,15 +36,15 @@ SourceManager::SourceManager(std::shared_ptr<::conal::framework::Logger> logger)
 }
 
 std::pair<std::string, std::shared_ptr<Source>> SourceManager::findSource(std::string name, std::vector<std::string> params, std::map<std::string, std::string> optional_params) {
-    auto source = sources.find(name);
-    if (source != sources.end()) {
-        auto error_result = source->second->init(params, optional_params);
-        if (!error_result) // no errors 
+    auto found_source = sources.find(name);
+    if (found_source != sources.end()) {
+        auto source = found_source->second->init(params, optional_params);
+        if (source) // no errors 
         {
-            return *source;
+            return std::make_pair(found_source->first, source.value());
         }
         else {
-            logger->error("ERROR: in init(...) for " + source->first + ": " +  error_result.value());
+            logger->error("ERROR: in init(...) for " + found_source->first);
             return std::make_pair("", nullptr);
         }
     }

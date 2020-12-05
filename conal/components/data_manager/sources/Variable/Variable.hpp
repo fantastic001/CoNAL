@@ -6,8 +6,8 @@
 #include <optional>
 #include <Source.hpp>
 
-class DummySource : public conal::data_manager::Source {
-        bool finished; 
+class Variable : public conal::data_manager::Source {
+        std::string value;
     public:
 
         conal::data_manager::SourceCopy init(std::vector<std::string> params, std::map<std::string, std::string> optional_params);
@@ -24,7 +24,7 @@ class DummySource : public conal::data_manager::Source {
         bool add(std::string);
         std::optional<std::string> at(std::string);
 
-        virtual ~DummySource() {
+        virtual ~Variable() {
             
         }
 };

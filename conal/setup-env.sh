@@ -148,6 +148,10 @@ platform_capabilities_discovery() {
     export CONAL_HOST_PLATFORM="$(uname -m)"
 }
 
+variable() {
+    create_data $1 "*" "Variable($2)"
+}
+
 if [ "$CONAL_INITIALIZED" != "1" ]; then 
 
     CONAL_DIR="."
