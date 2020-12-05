@@ -20,7 +20,12 @@ echo -e "#include <iostream>\nint main() {std::cout << \"HELLO\"; return 0; }" >
 
 echo "start_task test.cpp" > $MASTER_FIFO_FILE-input 
 sleep 5
-
+echo "start_task TEST" > $MASTER_FIFO_FILE-input 
+sleep 1
+echo "create_data test \"*\" \"DummySource()\"" >> $MASTER_FIFO_FILE-input
+echo "start_task TEST" > $MASTER_FIFO_FILE-input 
+echo "start_task TEST" > $MASTER_FIFO_FILE-input 
+sleep 10
 kill -9 $(cat $PIDFILE-*)
 sleep 1 
 rm -rf $SLAVE_FIFO_FILE-* $MASTER_FIFO_FILE-* $PIDFILE-*
@@ -31,6 +36,10 @@ cat $LOG-master.log
 echo "Log for slave"
 cat $LOG-slave.log 
 
-cat $LOG-slave.log | grep "HELLO"
+cat $LOG-slave.log | grep "HELLO" && \
+cat $LOG-slave.log | grep "TEST" && \
+cat $LOG-slave.log | grep "Hello" && \
+cat $LOG-slave.log | grep "finalized" 
+
 
 exit $?

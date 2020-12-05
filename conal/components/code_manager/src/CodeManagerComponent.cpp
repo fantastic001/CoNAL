@@ -23,8 +23,8 @@ void CodeManagerComponent::handleMessage(Message msg) {
         int num = msg.reply_with;
         if (replyGet.find(num) != replyGet.end()) replyGet[num].set_value(msg.body);
         if (replyAt.find(num) != replyAt.end()) replyAt[num].set_value(msg.body);
-        if (replyGet.find(num) != replyGet.end()) replyGet[num].set_value(msg.body);
-        if (replyGet.find(num) != replyGet.end()) replyGet[num].set_value(msg.body);
+        if (replyEnd.find(num) != replyEnd.end()) replyEnd[num].set_value(msg.body == "1");
+        if (replyAdd.find(num) != replyAdd.end()) replyAdd[num].set_value(msg.body == "1");
 
     }
     else if (msg.performative == Performative::REQUEST && msg.from_component == "data_manager")
@@ -109,32 +109,15 @@ EnvParams CodeManagerComponent::getEnvParams() {
 
 
 std::string CodeManagerComponent::sendGetRequest(std::string identifier) {
-    int replyNum = sendReplyableMessage("data_message", Performative::REQUEST, 
-        "get " + identifier
-    );
-    replyGet[replyNum] = std::promise<std::string>();
-    return replyGet[replyNum].get_future().get();
+    return sendRequestToDataManager<std::string>(identifier, "get", replyGet);
 }
 
 std::string CodeManagerComponent::sendAtRequest(std::string identifier, std::string key) {
-    int replyNum = sendReplyableMessage("data_message", Performative::REQUEST, 
-        "at " + identifier + " " + key
-    );
-    replyAt[replyNum] = std::promise<std::string>();
-    return replyAt[replyNum].get_future().get();
+    return sendRequestToDataManager<std::string>(identifier, "at",replyAt, key);
 }
 bool CodeManagerComponent::sendEndRequest(std::string identifier) {
-    int replyNum = sendReplyableMessage("data_message", Performative::REQUEST, 
-        "end " + identifier
-    );
-    replyEnd[replyNum] = std::promise<bool>();
-    return replyEnd[replyNum].get_future().get();
-    
+    return sendRequestToDataManager<bool>(identifier, "end", replyEnd);
 }
 bool CodeManagerComponent::sendAddRequest(std::string identifier, std::string data) {
-    int replyNum = sendReplyableMessage("data_message", Performative::REQUEST, 
-        "add " + identifier + " " + data
-    );
-    replyAdd[replyNum] = std::promise<bool>();
-    return replyAdd[replyNum].get_future().get();
+    return sendRequestToDataManager<bool>(identifier, "add", replyAdd, data);
 }

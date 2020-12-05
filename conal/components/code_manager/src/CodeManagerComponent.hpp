@@ -33,6 +33,19 @@ namespace conal {
 
                 DataBindings dataInstances; 
 
+
+                template<typename T> 
+                T sendRequestToDataManager(std::string identifier, std::string request, FutureReplyMap<T>& replyMap, std::string key = "") {
+                    using Performative = conal::framework::Performative;
+                    std::promise<T> my_promise; 
+                    auto my_future = my_promise.get_future();
+                    int replyNum = sendReplyableMessage("data_manager", Performative::REQUEST, 
+                        request + " " + identifier + (!key.empty() ? " " + key : "")
+                    );
+                    replyMap[replyNum] = std::move(my_promise);
+                    return my_future.get();
+                }
+
             public: 
                 explicit CodeManagerComponent();
                 virtual void start();
@@ -45,6 +58,7 @@ namespace conal {
                 std::string sendAtRequest(std::string identifier, std::string key);
                 bool sendEndRequest(std::string identifier);
                 bool sendAddRequest(std::string identifier, std::string data);
+
         };
     }
 }
