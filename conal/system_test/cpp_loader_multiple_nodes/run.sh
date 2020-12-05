@@ -16,7 +16,7 @@ sleep 1
 empty -f -p $PIDFILE-slave -i $SLAVE_FIFO_FILE-input -o $SLAVE_FIFO_FILE-output -L $LOG-slave.log $DOCKER_SLAVE_COMMAND
 sleep 1
 
-echo -e "#include <iostream>\n#include <vector>\n#include <DataBinding.hpp>\nusing namespace conal::code_manager;\nint start(std::vector<DataBinding> in, std::vector<DataBinding>) {std::cout << \"HELLO\"; return 0; }" > $CONAL_DIR/test.cpp
+echo -e "#include <iostream>\n#include <vector>\n#include <DataBinding.hpp>\nusing namespace conal::code_manager;\nint start(DataBindings& in, DataBindings& out) {std::cout << \"HELLO\"; return 0; }" > $CONAL_DIR/test.cpp
 
 echo "start_task \"*\" test.cpp" > $MASTER_FIFO_FILE-input 
 sleep 5

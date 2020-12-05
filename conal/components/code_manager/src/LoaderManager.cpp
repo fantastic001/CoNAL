@@ -41,7 +41,7 @@ std::pair<std::string, std::shared_ptr<Loader>> LoaderManager::findLoader(std::s
     logger->debug("Loader not found by LoaderManager");
     return std::make_pair("", nullptr);
 }
-void LoaderManager::start(std::string loaderName, std::string code, DataBindings in, DataBindings out) {
+void LoaderManager::start(std::string loaderName, std::string code, DataBindings& in, DataBindings& out) {
     logger->info("Starting program with loader " + loaderName);
     loaders[loaderName]->run(code, in, out);
 }

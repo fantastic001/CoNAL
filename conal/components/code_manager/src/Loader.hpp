@@ -23,7 +23,7 @@ namespace conal {
                 // in and out are lists of data binding which gain access to data 
                 // specific handling of data management is dependent on loader. There interfaces 
                 // only provide way to communicate to bound variables in DM
-                virtual void run(std::string code, std::vector<DataBinding> in, std::vector<DataBinding> out) =0;
+                virtual void run(std::string code, std::vector<DataBinding>& in, std::vector<DataBinding>& out) =0;
                 virtual ~Loader() {
                     
                 }

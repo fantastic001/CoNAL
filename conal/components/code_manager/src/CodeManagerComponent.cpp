@@ -19,7 +19,18 @@ void CodeManagerComponent::stop() {
 
 void CodeManagerComponent::handleMessage(Message msg) {
     logger->debug("Got message: " + msg.body);
-    if (msg.from_component == "data_manager" && msg.performative == Performative::REPLY) {
+    if (msg.from_component == "data_manager" && msg.performative == Performative::NOTIFY) {
+        std::stringstream ss(msg.body);
+        std::string id;
+        std::string data; 
+        ss >> id;
+        for (int i = 0; i<dataInstances.size(); i++) {
+            if (dataInstances[i].getIdentifier() == id) {
+                dataInstances[i].notify();
+            }
+        }
+    }
+    else if (msg.from_component == "data_manager" && msg.performative == Performative::REPLY) {
         int num = msg.reply_with;
         if (replyGet.find(num) != replyGet.end()) replyGet[num].set_value(msg.body);
         if (replyAt.find(num) != replyAt.end()) replyAt[num].set_value(msg.body);

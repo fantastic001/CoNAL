@@ -73,7 +73,7 @@ std::string CppLoader::load(std::string path, std::vector<std::string> params, E
         << std::endl
         << "#include <vector>\n"
         << "#include <DataBinding.hpp>\n"
-        << "typedef int (*entry_start_pointer_t)(std::vector<::conal::code_manager::DataBinding>,std::vector<::conal::code_manager::DataBinding>);\n"
+        << "typedef int (*entry_start_pointer_t)(conal::code_manager::DataBindings&,conal::code_manager::DataBindings&);\n"
         << "extern \"C\" " 
         << "entry_start_pointer_t " 
         << conal_entry_function << "()" 
@@ -96,7 +96,7 @@ std::string CppLoader::load(std::string path, std::vector<std::string> params, E
     auto code = encode(output);
     return code; 
 }
-void CppLoader::run(std::string code, std::vector<DataBinding> in, std::vector<DataBinding> out) {
+void CppLoader::run(std::string code, std::vector<DataBinding>& in, std::vector<DataBinding>& out) {
     auto execName = get_random_executable_name();
     std::ofstream executableOutput(execName, std::ofstream::out | std::ofstream::binary);
     auto result = decode(code);
@@ -110,7 +110,7 @@ void CppLoader::run(std::string code, std::vector<DataBinding> in, std::vector<D
         std::cout << dlsym_error << std::endl;
         return;
     }
-    typedef int (*entry_start_pointer_t)(std::vector<::conal::code_manager::DataBinding>,std::vector<::conal::code_manager::DataBinding>);
+    typedef int (*entry_start_pointer_t)(conal::code_manager::DataBindings&, conal::code_manager::DataBindings&);
     
     typedef entry_start_pointer_t (*entry_function)();
     entry_function entry_symbol = (entry_function) dlsym(handle, conal_entry_function.c_str());
@@ -119,7 +119,7 @@ void CppLoader::run(std::string code, std::vector<DataBinding> in, std::vector<D
             std::cout << dlsym_error << std::endl;
     }
     entry_start_pointer_t start_function = entry_symbol();
-    std::thread process([start_function, in, out] () {
+    std::thread process([start_function, &in, &out] () {
         int result = start_function(in, out);
     });
     process.detach();

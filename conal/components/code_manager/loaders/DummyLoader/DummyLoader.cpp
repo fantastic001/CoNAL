@@ -13,13 +13,13 @@ std::string DummyLoader::load(std::string path, std::vector<std::string> params,
     return "XXX";
 }
 
-void DummyLoader::run(std::string code, std::vector<DataBinding> in, std::vector<DataBinding> out) {
-    thread process([in, out] () {
+void DummyLoader::run(std::string code, std::vector<DataBinding>& in, std::vector<DataBinding>& out) {
+    thread process([&in, &out] () {
         this_thread::sleep_for(std::chrono::seconds(5));
         std::cout << "Hello world\n";
-        for (auto input : in) {
-            if (input.getIdentifier() == "test") {
-                std::cout << (input.end() ? "finalized\n" : input.get() + "\n");
+        for (int i = 0; i<in.size(); i++) {
+            if (in[i].getIdentifier() == "test") {
+                std::cout << (in[i].end() ? "finalized\n" : in[i].get() + "\n");
             }
         }
     });

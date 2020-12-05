@@ -13,6 +13,7 @@ namespace conal {
             DESTROY,
             DATA,
             REPLY,
+            NOTIFY
         };
 
         std::istream& operator>> (std::istream& in, Performative& perf);

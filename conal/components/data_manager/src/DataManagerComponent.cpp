@@ -105,6 +105,8 @@ void DataManagerComponent::handleMessage(Message msg) {
             else {
                 reply(msg, added ? "1" : "0");
             }
+            // notify code manager about data change
+            if (added) sendMessage("code_manager", Performative::NOTIFY, id + " " + data);
         }
         else if (command == "at") {
             string key, id; 
