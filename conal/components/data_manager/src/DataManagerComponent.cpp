@@ -3,6 +3,7 @@
 #include <iostream>
 #include <sstream>
 #include <algorithm>
+#include <cstdlib>
 
 using namespace conal::data_manager; 
 using namespace conal::framework;
@@ -161,6 +162,9 @@ void DataManagerComponent::splitMessages(::conal::framework::Message msg, std::s
 }
 
 vector<shared_ptr<Source>> DataManagerComponent::split(int size, shared_ptr<Source> source) {
+    stringstream debugStream; 
+    debugStream << "Called split function with size=" << size;
+    logger->debug(debugStream.str());
     vector<shared_ptr<Source>> result; 
     if (size == 0) return result; 
     else if (size == 1) {
@@ -176,7 +180,10 @@ vector<shared_ptr<Source>> DataManagerComponent::split(int size, shared_ptr<Sour
         int half = size / 2; 
         auto first = split(half, p.first);
         auto second = split(size - half, p.second);
-        std::merge(first.begin(), first.end(), second.begin(), second.end(), result.begin());
+        logger->debug("Merging");
+        result.insert(result.end(), first.begin(), first.end());
+        result.insert(result.end(), second.begin(), second.end());
+        logger->debug("merge finished");
     }
     return result;
 }

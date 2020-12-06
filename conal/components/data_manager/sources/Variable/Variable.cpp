@@ -22,11 +22,9 @@ bool Variable::end() {
 }
 
 std::pair<std::shared_ptr<Source>, std::shared_ptr<Source>> Variable::split() {
-    auto first = std::make_shared<Variable>();
-    auto second = std::make_shared<Variable>();
-    first->init(std::vector<std::string>(), std::map<std::string, std::string>());
-    second->init(std::vector<std::string>(), std::map<std::string, std::string>());
-    return std::make_pair(first, second); 
+    auto first = init({value}, std::map<std::string, std::string>());
+    auto second = init({value}, std::map<std::string, std::string>());
+    return std::make_pair(first.value(), second.value()); 
 }
 
 
