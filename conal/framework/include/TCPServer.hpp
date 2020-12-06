@@ -70,8 +70,9 @@ namespace conal {
             template<typename MessageHandler> 
             void doRead(MessageHandler m, std::shared_ptr<Connection> conn) {
                 while (true) {
-                    size_t len;
-                    conal::utilities::recv_all(conn->sockfd, &len, sizeof(size_t), 0);
+                    conal::utilities::packet_length_t len;
+                    conal::utilities::recv_all(conn->sockfd, &len, sizeof(conal::utilities::packet_length_t), 0);
+                    len = ntohl(len);
                     char * buffer = new char[len];
                     conal::utilities::recv_all(conn->sockfd, buffer, len, 0);
                     

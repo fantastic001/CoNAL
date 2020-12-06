@@ -58,8 +58,14 @@ namespace conal {
 
         std::string TCPClient::readLine()  {
             std::unique_lock<std::mutex> lock(read_mutex);
-            size_t len;
-            conal::utilities::recv_all(sockfd, &len, sizeof(size_t), 0); // TODO: check rv for errors
+            conal::utilities::packet_length_t len;
+            conal::utilities::recv_all(
+                sockfd,
+                &len,
+                sizeof(conal::utilities::packet_length_t),
+                0
+            ); // TODO: check rv for errors
+            len = ntohl(len);
             char* buf = new char[len];
             conal::utilities::recv_all(sockfd, buf, len, 0); // TODO: check rv for errors
             std::string result(buf, buf+len);
@@ -69,9 +75,14 @@ namespace conal {
         
         void TCPClient::sendLine(const std::string& data) {
             std::unique_lock<std::mutex> lock(send_mutex);
-            size_t len = data.size();
-            conal::utilities::send_all(sockfd, &len, sizeof(size_t), 0); // TODO: check rv for errors
-            conal::utilities::send_all(sockfd, data.c_str(), len, 0); // TODO: check rv for errors
+            conal::utilities::packet_length_t len = htonl(data.size());
+            conal::utilities::send_all(
+                sockfd,
+                &len,
+                sizeof(conal::utilities::packet_length_t),
+                0
+            ); // TODO: check rv for errors
+            conal::utilities::send_all(sockfd, data.c_str(), data.size(), 0); // TODO: check rv for errors
         }
     }
 }

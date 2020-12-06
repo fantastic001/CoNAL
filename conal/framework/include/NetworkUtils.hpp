@@ -2,6 +2,8 @@
 
 namespace conal {
     namespace utilities {
+        typedef uint32_t packet_length_t;
+        
         ssize_t send_all(int sockfd, const void* buf, size_t len, int flags);
 
         /**

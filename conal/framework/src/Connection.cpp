@@ -11,9 +11,9 @@ namespace conal {
         }
         void Connection::send(std::string data) {
             std::unique_lock<std::mutex> lock(send_mutex);
-            size_t len = data.size();
-            conal::utilities::send_all(sockfd, &len, sizeof(size_t), 0);
-            conal::utilities::send_all(sockfd, data.c_str(), len, 0);
+            conal::utilities::packet_length_t len = htonl(data.size());
+            conal::utilities::send_all(sockfd, &len, sizeof(conal::utilities::packet_length_t), 0);
+            conal::utilities::send_all(sockfd, data.c_str(), data.size(), 0);
         }
 
         bool Connection::closed() {
