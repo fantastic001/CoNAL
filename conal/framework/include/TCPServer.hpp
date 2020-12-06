@@ -5,18 +5,20 @@
 #include <list>
 #include <memory>
 #include <utility>
-#include <boost/asio.hpp>
+#include <thread>
+
 #include <Connection.hpp>
+#include <NetworkUtils.hpp>
+
 namespace conal {
     namespace framework {
         class TCPServer {
-            boost::asio::io_context io_context;
-            std::shared_ptr<boost::asio::ip::tcp::acceptor> acceptorPtr;
-            std::shared_ptr<boost::asio::ip::tcp::endpoint> endpointPtr; 
             std::list<std::shared_ptr<Connection>> connections;
             int port;
-            std::string bindAddress; 
+            std::string bindAddress;
             std::mutex mutex;
+            
+            int sockfd;
 
         public:
             /*
@@ -37,42 +39,46 @@ namespace conal {
             */
             template<typename ConnectionHandler, typename MessageHandler> 
             void run(ConnectionHandler c, MessageHandler m) {
-                this->accept(c,m);
+                std::thread listener([=]() {
+                    this->accept(c, m);
+                });
+                
+                listener.detach();
             }
+
             template<typename ConnectionHandler, typename MessageHandler> 
             void accept(ConnectionHandler c, MessageHandler m) {
-                // std::cout << "Waiting for connection\n";
-                acceptorPtr->async_accept([this, c, m] (boost::system::error_code ec, boost::asio::ip::tcp::socket socket) {
-                    std::shared_ptr<Connection> conn(new ::conal::framework::Connection(std::move(socket)));
+                listen(sockfd, 123);
+                
+                while (true) {
+                    sockaddr * addr = (sockaddr*)new sockaddr_in6();
+                    socklen_t len = sizeof(sockaddr_in6);
+                    int clientsock = ::accept(sockfd, addr, &len);
+                    std::shared_ptr<Connection> conn(new Connection(clientsock, addr));
                     c(conn);
                     this->addConnection(conn);
-                    this->doRead(m,ec,conn);
-                    this->accept(c,m);
-                });
-                try {
-                    io_context.run();
-                } catch (std::exception& e)
-                {
-                    std::cerr << "ERROR: " << e.what() << std::endl;
+                    std::thread reader([this, m, conn]() {
+                        this->doRead(m, conn);
+                    });
+                    reader.detach();
                 }
+
             }
 
             void addConnection(std::shared_ptr<Connection> conn);
 
             template<typename MessageHandler> 
-            void doRead(MessageHandler m, boost::system::error_code ec,std::shared_ptr<Connection> conn) {
-                // std::cout << "Reading\n";
-                auto buffer = std::make_shared<boost::asio::streambuf>();
-                auto f = [this, conn, m, buffer] (boost::system::error_code ec, size_t n) {
-                    // std::cout << "Here is it!\n";
-                    std::string message;
-                    std::istream is(buffer.get());
-                    std::getline(is, message);
+            void doRead(MessageHandler m, std::shared_ptr<Connection> conn) {
+                while (true) {
+                    size_t len;
+                    conal::utilities::recv_all(conn->sockfd, &len, sizeof(size_t), 0);
+                    char * buffer = new char[len];
+                    conal::utilities::recv_all(conn->sockfd, buffer, len, 0);
+                    
+                    std::string message(buffer, buffer+len);
                     m(conn, message);
-                    buffer->consume(n);
-                    this->doRead(m,ec,conn);
-                };
-                async_read_until(*conn, *buffer, '\n', f);
+                    delete[] buffer;
+                }
             }
         };
     }

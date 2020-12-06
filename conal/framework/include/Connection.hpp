@@ -12,14 +12,13 @@ namespace conal {
             friend class TCPServer;
             std::mutex send_mutex;
             std::mutex read_mutex;
-            boost::asio::ip::tcp::socket socket;
-            std::map<std::string, std::string> properties; 
+            int sockfd;
+            std::map<std::string, std::string> properties;
+            sockaddr *addr;
 
-            Connection(boost::asio::ip::tcp::socket socket);
+            Connection(int _socket, sockaddr* addr);
 
         public:
-            typedef boost::asio::ip::tcp::socket::executor_type executor_type;
-            
             /*
             \brief Send data to connection represented by object.
             \param data String data to be sent
@@ -36,22 +35,7 @@ namespace conal {
             Returns hostname of connection 
             \return string representing hostname in form of ipv4 or ipv6 address
             */
-            std::string getHostname(); 
-
-            auto get_executor() -> decltype(socket.get_executor()) {
-                return socket.get_executor();
-            }
-
-            template <typename MutableBufferSequence,
-                BOOST_ASIO_COMPLETION_TOKEN_FOR(void (boost::system::error_code,
-                    std::size_t)) ReadHandler
-                    BOOST_ASIO_DEFAULT_COMPLETION_TOKEN_TYPE(executor_type)>
-            BOOST_ASIO_INITFN_AUTO_RESULT_TYPE(ReadHandler,
-                void (boost::system::error_code, std::size_t))
-            async_read_some(const MutableBufferSequence & buffers, ReadHandler&& handler) 
-            {
-                return socket.async_read_some(buffers, handler);
-            }
+            std::string getHostname();
             
             /*
             Sends ping message using send(...) function and checks if message is delivered. 
