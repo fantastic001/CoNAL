@@ -14,6 +14,7 @@ ALL_TESTS=""
 for module in $(ls .); do 
     if [ -d $module ]; then 
         ALL_TESTS="$ALL_TESTS $module"
+        echo _______________________________
         ./run.sh $module $CONAL_DIR
         if [ $? -ne 0 ]; then 
             FAILED_TESTS="$FAILED_TESTS $module"
