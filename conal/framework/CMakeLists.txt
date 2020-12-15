@@ -7,6 +7,7 @@ set(FRAMEWORK_SOURCES
     src/TCPClient.cpp
     src/Component.cpp
     src/Message.cpp
+    src/NetworkUtils.cpp
 )
 # Waiting for CMake 3.19 for this feature 
 # file(REAL_PATH include/ FRAMEWORK_INCLUDE_DIRECTORY)
@@ -18,6 +19,7 @@ set(FRAMEWORK_HEADERS
     ${FRAMEWORK_INCLUDE_DIRECTORY}/Connection.hpp
     ${FRAMEWORK_INCLUDE_DIRECTORY}/Logger.hpp
     ${FRAMEWORK_INCLUDE_DIRECTORY}/Message.hpp
+    ${FRAMEWORK_INCLUDE_DIRECTORY}/NetworkUtils.hpp
     ${FRAMEWORK_INCLUDE_DIRECTORY}/Performative.hpp
     ${FRAMEWORK_INCLUDE_DIRECTORY}/POSIXPipe.hpp
     ${FRAMEWORK_INCLUDE_DIRECTORY}/TCPCLient.hpp

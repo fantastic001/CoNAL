@@ -1,25 +1,42 @@
 #include <Connection.hpp>
 #include <iostream>
 
+#include <NetworkUtils.hpp>
+
 namespace conal {
     namespace framework {
-        Connection::Connection(boost::asio::ip::tcp::socket _socket)  : socket(std::move(_socket)) {
-                
+        Connection::Connection(int _socket, sockaddr* addr)
+            : sockfd(_socket), addr(addr)
+        {
         }
         void Connection::send(std::string data) {
             std::unique_lock<std::mutex> lock(send_mutex);
-            boost::asio::streambuf buf;
-            std::ostream os(&buf);
-            os << data;
-            os << "\n";
-            boost::asio::write(socket, buf);
+            conal::utilities::packet_length_t len = htonl(data.size());
+            conal::utilities::send_all(sockfd, &len, sizeof(conal::utilities::packet_length_t), 0);
+            conal::utilities::send_all(sockfd, data.c_str(), data.size(), 0);
         }
 
         bool Connection::closed() {
-            return ! socket.is_open();
+            return sockfd == 0;
         }
         std::string Connection::getHostname() {
-            return socket.remote_endpoint().address().to_string();
+            char str[INET6_ADDRSTRLEN];
+            if (addr->sa_family == AF_INET) {
+                inet_ntop(
+                    AF_INET,
+                    &((sockaddr_in*)addr)->sin_addr,
+                    str,
+                    INET_ADDRSTRLEN
+                );
+            } else {
+                inet_ntop(
+                    AF_INET6,
+                    &((sockaddr_in6*)addr)->sin6_addr,
+                    str,
+                    INET6_ADDRSTRLEN
+                );
+            }
+            return std::string(str);
         }
 
         bool Connection::canPing() {
@@ -33,7 +50,7 @@ namespace conal {
         }
 
         void Connection::setProperty(std::string property, std::string value) {
-            properties[property] = value; 
+            properties[property] = value;
         }
 
         std::string Connection::getProperty(std::string property) const {
