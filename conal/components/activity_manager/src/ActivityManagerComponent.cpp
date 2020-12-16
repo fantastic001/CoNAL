@@ -180,8 +180,15 @@ void ActivityManagerComponent::handleMessage(Message msg) {
             msgWriter << " " << msg_to_be_sent;
             node_spec::Parser parser; 
             auto selParsed = parser.parse(selection.c_str());
+            auto connectionList = connectionManager.select(selParsed);
+            stringstream replyWriter;
+            replyWriter << "= " << connectionList.size();
+            if (msg.from_component == "console") {
+                cout << replyWriter.str();
+            }
+            else reply(msg, replyWriter.str());
             waitingFromClients[msg_to_be_sent.reply_with] = msg_to_be_sent;
-            for (auto conn : connectionManager.select(selParsed)) {
+            for (auto conn : connectionList) {
                 logger->debug("Sending message to " + conn->getHostname() + ": " + msgWriter.str());
                 conn->send("COMPONENT " + msgWriter.str());
             }
