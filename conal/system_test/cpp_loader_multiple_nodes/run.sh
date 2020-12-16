@@ -12,9 +12,9 @@ PIDFILE=/tmp/conal-systemtest-pid-$$
 LOG=/tmp/conal-systemtest-log-$$
 
 empty -f -p $PIDFILE-master -i $MASTER_FIFO_FILE-input -o $MASTER_FIFO_FILE-output -L $LOG-master.log $DOCKER_MASTER_COMMAND
-sleep 1
+sleep 2
 empty -f -p $PIDFILE-slave -i $SLAVE_FIFO_FILE-input -o $SLAVE_FIFO_FILE-output -L $LOG-slave.log $DOCKER_SLAVE_COMMAND
-sleep 1
+sleep 2
 
 echo -e "#include <iostream>\n#include <vector>\n#include <DataBinding.hpp>\nusing namespace conal::code_manager;\nint start(DataBindings& in, DataBindings& out) {std::cout << \"HELLO\"; return 0; }" > $CONAL_DIR/test.cpp
 
