@@ -184,7 +184,7 @@ void ActivityManagerComponent::handleMessage(Message msg) {
             stringstream replyWriter;
             replyWriter << "= " << connectionList.size();
             if (msg.from_component == "console") {
-                cout << replyWriter.str();
+                cout << replyWriter.str() << "\n";
             }
             else reply(msg, replyWriter.str());
             waitingFromClients[msg_to_be_sent.reply_with] = msg_to_be_sent;
