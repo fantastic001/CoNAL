@@ -35,6 +35,7 @@ add_test(NAME test_data_manager COMMAND testDataManager)
 set(LOADERS 
     DummySource
     Variable
+    Array
 )
 
 foreach(LOADER ${LOADERS})
