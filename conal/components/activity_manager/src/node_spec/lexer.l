@@ -16,7 +16,7 @@ extern "C" YY_DECL;
 
 
 %%
-\*  { return yy::parser::make_BROADCAST_OPERATOR(); }
+\%  { return yy::parser::make_BROADCAST_OPERATOR(); }
 \+  { return yy::parser::make_OR(); }
 ,   { return yy::parser::make_AND(); }
 \(  { return yy::parser::make_OPEN_BRACKET(); }
@@ -29,6 +29,6 @@ extern "C" YY_DECL;
   return yy::parser::make_STRING(yytext);
 }
 !   { return yy::parser::make_NOT(); }
-\%  { return yy::parser::make_MASTER(); }
+\*  { return yy::parser::make_BROADCAST_OPERATOR(); }
 %%
 

@@ -28,14 +28,16 @@ void ComponentManager::registerComponent(std::string name, std::shared_ptr<Compo
     component.get()->messageReadingThread = std::thread([&logger = logger, &component, &name] () {;
         std::string msg;
         auto is = std::fstream(std::getenv("COMPONENT_MSG_FIFO"), std::ios::in | std::ios::out);
-        while (! std::getline(is, msg).eof()) {
+        while (! std::getline(is, msg).eof() && !component->stopped ) {
             std::stringstream ss(msg);
             Message message;
             ss >> message;
             logger.debug("Delivering message: " + message.body + " from " + message.from_component);
             component->deliver(message);
+            if (component->stopped) break;
         }
     });
     component.get()->messageReadingThread.join();
+    component->stop();
     
 }

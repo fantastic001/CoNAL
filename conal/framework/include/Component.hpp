@@ -23,12 +23,14 @@ namespace conal {
                 std::thread messageReadingThread;
                 std::default_random_engine rand;
                 std::string name;
+                bool stopped = false;
             
             protected:
                 std::shared_ptr<Logger> logger;
                 void sendMessage(std::string to_component, Performative performative, std::string body);
                 void reply(Message msg, std::string body, Performative performative = Performative::REPLY);
                 int sendReplyableMessage(std::string to_component, Performative performative, std::string body);
+                void finish();
                 Component();
             public: 
                 // needs to be implemented by component. 

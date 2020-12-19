@@ -29,6 +29,7 @@ echo "request data_manager get x" > $SLAVE_FIFO_FILE-input
 echo "request data_manager end x" > $SLAVE_FIFO_FILE-input 
 sleep 5
 echo "client_request \"*\" data_manager list" >> $MASTER_FIFO_FILE-input
+echo "cat log/collector.log" > $MASTER_FIFO_FILE-input 
 sleep 2
 kill -9 $(cat $PIDFILE-*)
 sleep 1
@@ -47,6 +48,6 @@ cat $LOG-slave.log | grep "Created data instance: x" && \
     cat $LOG-slave.log | grep "y = Variable()" && \
     cat $LOG-slave.log | grep "stefan_5 = Variable(haha_5)" && \
     cat $LOG-slave.log | grep "stefan_9 = Variable(haha_9)" && \
-    (cat $LOG-master.log | grep "From 172.17.0.3: " | grep stefan_1)
+    (cat $LOG-master.log | grep "172.17.0.3 |> " | grep stefan_1)
 
 exit $?

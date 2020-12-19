@@ -49,6 +49,7 @@ start_component() {
     local component_msg_fifo
     local component_state_dir
     component=$1
+    shift 
     component_state_dir=$CONAL_TEMP_DIR/state/$component
     if [ -f $component_state_dir/$component.pid ]; then 
         echo "Component already running"
@@ -61,8 +62,23 @@ start_component() {
     mkdir -p $CONAL_TEMP_DIR/comm/$component
     component_msg_fifo=$CONAL_TEMP_DIR/comm/$component/messages
     mkfifo $component_msg_fifo
-    COMPONENT_COMM_DIR=$CONAL_TEMP_DIR/comm/ COMPONENT_MSG_FIFO=$component_msg_fifo LD_LIBRARY_PATH=$CONAL_DIR/lib/:$LD_LIBRARY_PATH $CONAL_DIR/components/$component/bin/$component &
+    COMPONENT_COMM_DIR=$CONAL_TEMP_DIR/comm/ COMPONENT_MSG_FIFO=$component_msg_fifo LD_LIBRARY_PATH=$CONAL_DIR/lib/:$LD_LIBRARY_PATH $CONAL_DIR/components/$component/bin/$component $* &
     echo $! > $component_state_dir/$component.pid
+}
+
+start_tool() {
+    local component
+    local component_msg_fifo
+    local component_state_dir
+    component=$1
+    shift 
+    # clear old directory structure 
+    mkdir -p $CONAL_DIR/log
+    mkdir -p $CONAL_TEMP_DIR/comm/$component
+    component_msg_fifo=$CONAL_TEMP_DIR/comm/$component/messages
+    mkfifo $component_msg_fifo
+    COMPONENT_COMM_DIR=$CONAL_TEMP_DIR/comm/ COMPONENT_MSG_FIFO=$component_msg_fifo LD_LIBRARY_PATH=$CONAL_DIR/lib/:$LD_LIBRARY_PATH $CONAL_DIR/components/$component/bin/$component $*
+    rm -rf $component_msg_fifo
 }
 
 stop_component() {
@@ -77,10 +93,6 @@ stop_component() {
     rm -rf $component_state_dir/$component.pid
 }
 
-start_tool() {
-    start_component $1 
-    wait $(get_component_pid $1)
-}
 
 send_message() {
     local component
@@ -97,7 +109,7 @@ client_send_message() {
     local performative 
     local component 
     local message
-    selection=$1
+    selection="$1"
     performative=$2 
     component=$3
     message="$4"
@@ -110,7 +122,11 @@ client_request() {
     selection="$1"
     component=$2
     shift 2
-    client_send_message "$selection" REQUEST $component "$*"
+    # this is workaround to not mess with Bash expansion later on
+    if [ "$selection" = "*" ]; then 
+        selection="%"
+    fi
+    start_tool collector "$selection" $component REQUEST "$*"
 }
 
 start_task() {
@@ -149,7 +165,7 @@ platform_capabilities_discovery() {
 }
 
 variable() {
-    create_data $1 "*" "Variable($2)"
+    create_data $1 "%" "Variable($2)"
 }
 
 if [ "$CONAL_INITIALIZED" != "1" ]; then 

@@ -24,6 +24,7 @@ set(components
     activity_manager
     code_manager
     data_manager
+    collector
 )
 
 foreach(component ${components})

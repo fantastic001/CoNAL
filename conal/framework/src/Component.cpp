@@ -47,3 +47,7 @@ void Component::reply(Message msg, std::string body, Performative performative) 
         );
     os << mess;
 }
+
+void Component::finish() {
+    stopped = true;
+}
