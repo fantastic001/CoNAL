@@ -28,8 +28,8 @@ std::pair<std::shared_ptr<Source>, std::shared_ptr<Source>> Array::split() {
     std::vector<std::string> firstValue; 
     std::vector<std::string> secondValue; 
     if (value.size() > 1) {
-        std::copy(value.begin(), value.begin() + value.size()/2, firstValue.begin());
-        std::copy(value.begin() + value.size()/2,value.end(), secondValue.begin());
+        std::copy(value.begin(), value.begin() + value.size()/2, std::back_inserter(firstValue));
+        std::copy(value.begin() + value.size()/2,value.end(), std::back_inserter(secondValue));
     }
     
     auto first = init(firstValue, std::map<std::string, std::string>());
