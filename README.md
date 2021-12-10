@@ -1,5 +1,11 @@
 # CoNAL
 
+## Introduction
+
+With the development of computer systems, it is desirable to achieve their basic purpose: the transformation of data as input into data that are the results of a calculation. The whole process of transformation is called an algorithm, and it is performed by a computer according to the given instructions, which we call a program. When the volume of data became larger and due to the fact that it was not possible to create a processor unit that would process the given data fast enough as in previous generations, the emergence of multiprocessor systems occurred. This is a consequence of Moore's Law. Problems of parallel execution and how to ensure the preservation of data consistency have started to appear in the systems of multiprocessor units. As the goal was to keep all the processor units on one computer system, the problem of heating and too little space for the flexibility of adding new processor units began to appear. With the advent of computer networks, computers began to connect to different topologies and began to share data. Today's computing is based mainly on distributed systems where multiple networked computers exchange data and perform calculations in parallel to get results. The most obvious examples are simulations of physical systems in research laboratories such as CERN. With the cheapening and availability of mini-computers such as the Raspberry PI, the cost of adding new computer units (nodes) has become cheaper. Many papers were based on the organization and topology of the system in networks when embedded computers were included in the system. The problem that arises here are significant differences in processor architectures, so programs from one computer cannot be easily transferred to another and then executed directly. The same is true for data in most cases as a result of the fact that different processor architectures represent complex data differently.
+
+CoNAL deals with the implementation of a system that allows the developer to easily distribute data and programs to different computer units regardless of their processor architecture.
+
 ## Setup
 
 	mkdir build
