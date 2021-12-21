@@ -110,7 +110,7 @@ It should be noted here that the components run in parallel in the background du
 
 Figure 1 shows the organization and topology of the system and its components as well as the connection to other nodes. The figure shows that all client nodes communicate with one command node via a TCP / IP connection. This communication is performed by only one subsystem. Subsystems communicate internally by another mechanism and other subsystems are not visible to external nodes. It should also be noted here that all nodes are located on the same computer network.
 
-[System diagram](!./images/1.png)
+![System diagram](./images/1.png)
 
 ## Environment
 The environment is the first instance that the user runs. The environment consists of a Bash script that is taught to the Bash interpreter using the Bash command "source". The script is responsible for setting environment variables such as `PATH` and `LD_LIBRARY_PATH` which allow the user to interact with the system through dedicated tools to communicate with components. In addition to this, the environment also offers a software library that allows components a unique way to communicate via POSIX FIFO files. The environment then reads the user configuration and runs the components depending on the configuration by the user. In addition to all this, the environment also detects the processor architecture and, in the case of a client node, finds a command node in the network. The parameters detected at this stage serve the activity management subsystem to send data to the command node.
