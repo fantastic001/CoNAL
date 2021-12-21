@@ -92,3 +92,48 @@ To list all clients, on master node run:
 
 Here "*" means "all clients". This parameter can be some other filter, please refer to architecture document for more details. 
 
+# Architecture 
+
+## Supported platforms 
+
+As the system is required to be compatible with the POSIX specification, the tools and the operating system interfaces with which CoNAL communicates must be POSIX compatible. On the command node, to whose command line the user has access, the interaction with the system is enabled through the command interpreter "Bash". The interaction begins with the user loading a Bash script into the interpreter itself that initializes the components and prepares only the environment for the interaction. When loading a script, a process consisting of the following steps occurs:
+
+1. Initialization of all variables necessary for the functioning of the components
+2. Preparation for component startup
+3. Detection of the features of the operating system and hardware on which the system runs
+4. Start the components that are defined to run during system initialization
+5. Providing a command line to a user who is now ready to accept commands to components.
+
+It should be noted here that the components run in parallel in the background during initialization and that they remain running throughout the life of the system. Using the command line, the user sends messages to the components and thus requests the functionality and information of the components.
+
+## Graphical diagrams 
+
+Figure 1 shows the organization and topology of the system and its components as well as the connection to other nodes. The figure shows that all client nodes communicate with one command node via a TCP / IP connection. This communication is performed by only one subsystem. Subsystems communicate internally by another mechanism and other subsystems are not visible to external nodes. It should also be noted here that all nodes are located on the same computer network.
+
+[System diagram](!./images/1.png)
+
+## Environment
+The environment is the first instance that the user runs. The environment consists of a Bash script that is taught to the Bash interpreter using the Bash command "source". The script is responsible for setting environment variables such as `PATH` and `LD_LIBRARY_PATH` which allow the user to interact with the system through dedicated tools to communicate with components. In addition to this, the environment also offers a software library that allows components a unique way to communicate via POSIX FIFO files. The environment then reads the user configuration and runs the components depending on the configuration by the user. In addition to all this, the environment also detects the processor architecture and, in the case of a client node, finds a command node in the network. The parameters detected at this stage serve the activity management subsystem to send data to the command node.
+
+## Program management subsystem - Code Manager
+
+In the case of a command node, the program management subsystem has the task of running a compiler for certain architectures, serializing the translated code and preparing for sending as well as communicating with the activity management subsystem which then sends the program code to client nodes.
+
+In the case of a client node, the program management subsystem has the task of deserializing the code received by the command node, placing the binary executable file on the file system, and running the program.
+
+## Data management subsystem
+The data management subsystem has the task of creating data on a node of different types such as arrays, trivial variables, ranges, etc. This component has the task of parsing the data specification specified by the user as well as dividing the data into smaller parts which are later passed to the activity management subsystem and then sent to the client nodes.
+
+In the case of complex data structures such as, for example, arrays, this subsystem indexes and retrieves elements from the data structure.
+
+In addition to all the above activities, the data management subsystem informs the program management subsystem about newly created variables and data changes. In this way, when a user or a program changes a data, other programs are notified of that change.
+
+
+## Activity Management Subsystem
+
+In the case of a command node, the activity management subsystem is responsible for detecting and managing client nodes, communicating with other subsystems to run programs on client nodes, enabling other subsystems to access client nodes, and sending commands to client nodes.
+
+In the case of client nodes, the activity management subsystem connects to the master command node whose network address is read from the user-specified configuration, which is passed to the subsystem during environment initialization. On the client side, the activity management subsystem accepts serialized program executable code from the command node and forwards such code to the program management subsystem. Similarly, when creating variables on a command node, this subsystem accepts commands to pass to the data management subsystem to create data on the client node.
+
+Communication with nodes is performed by a specific protocol that relies on the TCP / IP network system. The reason for choosing this method of communication is the simplicity and speed provided by direct communication using TCP / IP network system (unlike the use of higher levels in the OSI model and higher level protocols such as HTTP), while allowing all sent messages to reach their destination in the given order, which is extremely important with this type of system.
+
