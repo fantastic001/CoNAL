@@ -22,18 +22,18 @@ CoNAL deals with the implementation of a system that allows the developer to eas
 
 to run CoNAL master instance:
 	
-	docker run --rm -it --name conal_instance_master fantastixus/conal 
+	docker run --rm -it --name conal_instance_master fantastic001/conal 
 	
 To run CoNAL in slave mode:
 
 	docker run -it --rm --name conal_instance_client \
 		-e CONAL_MASTER_HOSTNAME=masterHostname \
 		-e CONAL_CLIENT_NAME=myClient \
-		fantastixus/conal 
+		fantastic001/conal 
 
 To run CoNAL with custom installation directory, just mount your installation to /opt/conal inside container:
 
-	docker run -it --rm --name conal_instance_master -v conal/location/path:/opt/conal fantastixus/conal 
+	docker run -it --rm --name conal_instance_master -v conal/location/path:/opt/conal fantastic001/conal 
 
 ## Starting tasks
 
@@ -142,9 +142,9 @@ Communication with nodes is performed by a specific protocol that relies on the 
 
 For the purposes of the demonstration, three docker containers were launched:
 
-1. Command node: `docker run --rm -it --name conal_instance_master -v (pwd)/opt:/opt/conal/ fantastixus/conal:1.0`
-2. First client node: `docker run --rm -it --name conal_instance_slave1 -e CONAL_MASTER_HOSTNAME=172.17.0.2 -e CONAL_CLIENT_NAME=slave1 fantastixus/conal:1.0`
-3. Second client node: `docker run --rm -it --name conal_instance_slave2 -e CONAL_MASTER_HOSTNAME=172.17.0.2 -e CONAL_CLIENT_NAME=slave2 fantastixus/conal:1.0`
+1. Command node: `docker run --rm -it --name conal_instance_master -v (pwd)/opt:/opt/conal/ fantastic001/conal:1.0`
+2. First client node: `docker run --rm -it --name conal_instance_slave1 -e CONAL_MASTER_HOSTNAME=172.17.0.2 -e CONAL_CLIENT_NAME=slave1 fantastic001/conal:1.0`
+3. Second client node: `docker run --rm -it --name conal_instance_slave2 -e CONAL_MASTER_HOSTNAME=172.17.0.2 -e CONAL_CLIENT_NAME=slave2 fantastic001/conal:1.0`
 
 A variable that stores the sum has been created on all client nodes: `variable sum 0`
 

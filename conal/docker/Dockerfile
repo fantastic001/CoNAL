@@ -1,6 +1,8 @@
 FROM archlinux
 
-RUN pacman -Syu --noconfirm && \
+RUN pacman -Syy && \
+    pacman -S --noconfirm archlinux-keyring && \
+    pacman -Syu --noconfirm && \
     pacman -S --noconfirm archlinux-keyring && \
     pacman -S --noconfirm \
     gcc \
