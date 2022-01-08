@@ -137,3 +137,90 @@ In the case of client nodes, the activity management subsystem connects to the m
 
 Communication with nodes is performed by a specific protocol that relies on the TCP / IP network system. The reason for choosing this method of communication is the simplicity and speed provided by direct communication using TCP / IP network system (unlike the use of higher levels in the OSI model and higher level protocols such as HTTP), while allowing all sent messages to reach their destination in the given order, which is extremely important with this type of system.
 
+
+# Demo
+
+For the purposes of the demonstration, three docker containers were launched:
+
+1. Command node: `docker run --rm -it --name conal_instance_master -v (pwd)/opt:/opt/conal/ fantastixus/conal:1.0`
+2. First client node: `docker run --rm -it --name conal_instance_slave1 -e CONAL_MASTER_HOSTNAME=172.17.0.2 -e CONAL_CLIENT_NAME=slave1 fantastixus/conal:1.0`
+3. Second client node: `docker run --rm -it --name conal_instance_slave2 -e CONAL_MASTER_HOSTNAME=172.17.0.2 -e CONAL_CLIENT_NAME=slave2 fantastixus/conal:1.0`
+
+A variable that stores the sum has been created on all client nodes: `variable sum 0`
+
+Creating each variable will cause automatic client splitting. In case of demonstration, a array of 4 elements was created: 
+```sh
+create_data A % “Array(1,2,3,4)”
+```
+
+After creating the array, it is possible to check that all variables are well created on all clients: 
+
+```sh
+client_request % data_manager list 
+```
+
+which gives the following output:
+
+```
+172.17.0.4 |> A sum
+172.17.0.3 |> A sum
+```
+
+
+Then the following source file is created which is a description of the program that finds the variables `A` and sum and calculates the sum of the array and stores it in the `sum` variable:
+
+```cpp
+
+#include <vector>
+#include <iostream>
+#include <conal_utilities.hpp>
+#include <sstream>
+
+using namespace std;
+using namespace conal::code_manager;
+using namespace conal::utilities;
+
+int start(params& in, params& out) {
+   int suma = 0;
+   for (auto& q : in) {
+       if (q.getIdentifier() == "niz") {
+           while (!q.end()) {
+               // sve promenljive se cuvaju kao stringovi pa ih je potrebno pretvoriti u broj
+               stringstream ss(q.get());
+               int element;
+               ss >> element;
+               suma += element;
+           }
+       }
+   }
+
+   stringstream intToStringconverter;
+   intToStringconverter << suma;
+   for (auto& p : in) {
+       if (p.getIdentifier() == "sum") {
+           p.add(intToStringconverter.str()) ;
+       }
+   }
+   return 0;
+}
+
+```
+
+To compile this code and run it on all nodes:
+
+```sh
+start_task % test.cpp
+```
+
+and finally to show value of `sum` variable on all nodes:
+
+```sh
+client_request % data_manager get sum
+```
+
+Now that we have local sums, we can aggregate them on the master node:
+
+```sh
+client_request % data_manager get sum | awk '{s+=$3} END {print s}'
+```
+
